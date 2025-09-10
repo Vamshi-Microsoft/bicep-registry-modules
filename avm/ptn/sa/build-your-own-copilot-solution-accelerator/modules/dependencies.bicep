@@ -57,7 +57,6 @@ param projectName string
 @description('Optional. Description  for the project which needs to be created.')
 param projectDescription string
 
-
 var builtInRoleNames = {
   'Cognitive Services Contributor': subscriptionResourceId(
     'Microsoft.Authorization/roleDefinitions',
@@ -350,7 +349,7 @@ module secretsExport './keyVaultExport.bicep' = if (secretsExportConfiguration !
   }
 }
 
-module aiProject 'project.bicep' = if(!empty(projectName)) {
+module aiProject 'project.bicep' = if (!empty(projectName)) {
   name: take('${name}-ai-project-${projectName}-deployment', 64)
   params: {
     name: projectName

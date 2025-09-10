@@ -2,7 +2,7 @@
 // Networking - NSGs, VNET and Subnets. Each subnet has its own NSG
 /****************************************************************************************************************************/
 @description('Name of the virtual network.')
-param name string 
+param name string
 
 @description('Azure region to deploy resources.')
 param location string = resourceGroup().location
@@ -22,7 +22,7 @@ param logAnalyticsWorkspaceId string
 @description('Optional. Enable/Disable usage telemetry for module.')
 param enableTelemetry bool = true
 
-// 1. Create NSGs for subnets 
+// 1. Create NSGs for subnets
 // using AVM Network Security Group module
 // https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/network/network-security-group
 
@@ -44,7 +44,7 @@ module nsgs 'br/public:avm/res/network/network-security-group:0.5.1' = [
 // using AVM Virtual Network module
 // https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/network/virtual-network
 
-module virtualNetwork 'br/public:avm/res/network/virtual-network:0.7.0' =  {
+module virtualNetwork 'br/public:avm/res/network/virtual-network:0.7.0' = {
   name: take('${name}-virtualNetwork', 64)
   params: {
     name: name
@@ -54,7 +54,7 @@ module virtualNetwork 'br/public:avm/res/network/virtual-network:0.7.0' =  {
       for (subnet, i) in subnets: {
         name: subnet.name
         addressPrefixes: subnet.?addressPrefixes
-        networkSecurityGroupResourceId: !empty(subnet.?networkSecurityGroup) ? nsgs[i].outputs.resourceId : null
+        networkSecurityGroupResourceId: !empty(subnet.?networkSecurityGroup) ? nsgs[i]!.outputs.resourceId : null
         privateEndpointNetworkPolicies: subnet.?privateEndpointNetworkPolicies
         privateLinkServiceNetworkPolicies: subnet.?privateLinkServiceNetworkPolicies
         delegation: subnet.?delegation
@@ -92,7 +92,7 @@ output subnets subnetOutputType[] = [
     name: subnet.name
     resourceId: virtualNetwork.outputs.subnetResourceIds[i]
     nsgName: !empty(subnet.?networkSecurityGroup) ? subnet.?networkSecurityGroup.name : null
-    nsgResourceId: !empty(subnet.?networkSecurityGroup) ? nsgs[i].outputs.resourceId : null
+    nsgResourceId: !empty(subnet.?networkSecurityGroup) ? nsgs[i]!.outputs.resourceId : null
   }
 ]
 
@@ -118,8 +118,8 @@ type subnetType = {
   @description('Required. The Name of the subnet resource.')
   name: string
 
-  @description('Required. Prefixes for the subnet.')  // Required to ensure at least one prefix is provided
-  addressPrefixes: string[]   
+  @description('Required. Prefixes for the subnet.') // Required to ensure at least one prefix is provided
+  addressPrefixes: string[]
 
   @description('Optional. The delegation to enable on the subnet.')
   delegation: string?

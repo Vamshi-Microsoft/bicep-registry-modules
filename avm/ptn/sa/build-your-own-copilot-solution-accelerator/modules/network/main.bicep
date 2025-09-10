@@ -15,11 +15,11 @@ param addressPrefixes array
 
 import { subnetType } from 'virtualNetwork.bicep'
 @description('Array of subnets to be created within the VNET.')
-param subnets subnetType[]   
+param subnets subnetType[]
 
 import { jumpBoxConfigurationType } from 'jumpbox.bicep'
 @description('Optional. Configuration for the Jumpbox VM. Leave null to omit Jumpbox creation.')
-param jumpboxConfiguration jumpBoxConfigurationType? 
+param jumpboxConfiguration jumpBoxConfigurationType?
 
 import { bastionHostConfigurationType } from 'bastionHost.bicep'
 @description('Optional. Configuration for the Azure Bastion Host. Leave null to omit Bastion creation.')
@@ -92,13 +92,12 @@ output vnetResourceId string = virtualNetwork.outputs.resourceId
 import { subnetOutputType } from 'virtualNetwork.bicep'
 output subnets subnetOutputType[] = virtualNetwork.outputs.subnets // This one holds critical info for subnets, including NSGs
 
-output bastionSubnetId string = bastionHost.outputs.subnetId
-output bastionSubnetName string = bastionHost.outputs.subnetName
-output bastionHostId string = bastionHost.outputs.resourceId
-output bastionHostName string = bastionHost.outputs.name
+output bastionSubnetId string = bastionHost!.outputs.subnetId
+output bastionSubnetName string = bastionHost!.outputs.subnetName
+output bastionHostId string = bastionHost!.outputs.resourceId
+output bastionHostName string = bastionHost!.outputs.name
 
-output jumpboxSubnetName string = jumpbox.outputs.subnetName
-output jumpboxSubnetId string = jumpbox.outputs.subnetId
-output jumpboxName string = jumpbox.outputs.name
-output jumpboxResourceId string = jumpbox.outputs.resourceId
-
+output jumpboxSubnetName string = jumpbox!.outputs.subnetName
+output jumpboxSubnetId string = jumpbox!.outputs.subnetId
+output jumpboxName string = jumpbox!.outputs.name
+output jumpboxResourceId string = jumpbox!.outputs.resourceId

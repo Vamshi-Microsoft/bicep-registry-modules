@@ -249,11 +249,11 @@ var allTags = union(
 // Paired location calculated based on 'location' parameter. This location will be used by applicable resources if `enableScalability` is set to `true`
 var cosmosDbHaLocation = cosmosDbZoneRedundantHaRegionPairs[resourceGroup().location]
 
-@description('Optional created by user name')
+@description('Optional. Created by user name')
 param createdBy string = empty(deployer().userPrincipalName) ? '' : split(deployer().userPrincipalName, '@')[0]
 
 // ========== Resource Group Tag ========== //
-resource resourceGroupTags 'Microsoft.Resources/tags@2021-04-01' = {
+resource resourceGroupTags 'Microsoft.Resources/tags@2025-04-01' = {
   name: 'default'
   properties: {
     tags: {
@@ -343,8 +343,8 @@ module applicationInsights 'br/public:avm/res/insights/component:0.6.0' = if (en
     disableIpMasking: false
     flowType: 'Bluefield'
     // WAF aligned configuration for Monitoring
-    workspaceResourceId: enableMonitoring ? logAnalyticsWorkspace.outputs.resourceId : ''
-    diagnosticSettings: enableMonitoring ? [{ workspaceResourceId: logAnalyticsWorkspace.outputs.resourceId }] : null
+    workspaceResourceId: enableMonitoring ? logAnalyticsWorkspace!.outputs.resourceId : ''
+    diagnosticSettings: enableMonitoring ? [{ workspaceResourceId: logAnalyticsWorkspace!.outputs.resourceId }] : null
   }
 }
 
@@ -366,7 +366,7 @@ module network 'modules/network.bicep' = if (enablePrivateNetworking) {
   params: {
     resourcesName: solutionSuffix
     // logAnalyticsWorkspace.outputs.resourceId: logAnalyticsWorkspace.outputs.resourceId
-    logAnalyticsWorkSpaceResourceId: logAnalyticsWorkspace.outputs.resourceId
+    logAnalyticsWorkSpaceResourceId: logAnalyticsWorkspace!.outputs.resourceId
     vmAdminUsername: vmAdminUsername ?? 'JumpboxAdminUser'
     vmAdminPassword: vmAdminPassword ?? 'JumpboxAdminP@ssw0rd1234!'
     vmSize: vmSize ?? 'Standard_DS2_v2' // Default VM size
@@ -419,7 +419,7 @@ var aiRelatedDnsZoneIndices = [
 // - Excludes AI-related zones when using with an existing Foundry project
 // ===================================================
 @batchSize(5)
-module avmPrivateDnsZones 'br/public:avm/res/network/private-dns-zone:0.7.1' = [
+module avmPrivateDnsZones 'br/public:avm/res/network/private-dns-zone:0.8.0' = [
   for (zone, i) in privateDnsZones: if (enablePrivateNetworking && (!contains(aiRelatedDnsZoneIndices, i))) {
     name: 'dns-zone-${i}'
     params: {
@@ -438,7 +438,7 @@ module avmPrivateDnsZones 'br/public:avm/res/network/private-dns-zone:0.7.1' = [
 
 // ==========Key Vault Module ========== //
 var keyVaultName = 'KV-${solutionSuffix}'
-module keyvault 'br/public:avm/res/key-vault/vault:0.12.1' = {
+module keyvault 'br/public:avm/res/key-vault/vault:0.13.3' = {
   name: take('avm.res.key-vault.vault.${keyVaultName}', 64)
   params: {
     name: keyVaultName
@@ -456,7 +456,7 @@ module keyvault 'br/public:avm/res/key-vault/vault:0.12.1' = {
     enableSoftDelete: true
     enablePurgeProtection: enablePurgeProtection
     softDeleteRetentionInDays: 7
-    diagnosticSettings: enableMonitoring ? [{ workspaceResourceId: logAnalyticsWorkspace.outputs.resourceId }] : []
+    diagnosticSettings: enableMonitoring ? [{ workspaceResourceId: logAnalyticsWorkspace!.outputs.resourceId }] : []
     // WAF aligned configuration for Private Networking
     privateEndpoints: enablePrivateNetworking
       ? [
@@ -496,7 +496,7 @@ module keyvault 'br/public:avm/res/key-vault/vault:0.12.1' = {
       }
       {
         name: 'AZURE-OPENAI-ENDPOINT'
-        value: aiFoundryAiServices.outputs.endpoints['OpenAI Language Model Instance API']
+        value: aiFoundryAiServices!.outputs.endpoints['OpenAI Language Model Instance API']
       }
       {
         name: 'AZURE-OPENAI-EMBEDDING-MODEL'
@@ -518,14 +518,7 @@ module keyvault 'br/public:avm/res/key-vault/vault:0.12.1' = {
 // ========== AI Foundry: AI Services ========== //
 // WAF best practices for Open AI: https://learn.microsoft.com/en-us/azure/well-architected/service-guides/azure-openai
 
-var aiFoundryAiServicesSubscriptionId = subscription().id
-var aiFoundryAiServicesResourceGroupName = 'rg-${solutionSuffix}'
 var aiFoundryAiServicesResourceName = 'aif-${solutionSuffix}'
-var aiFoundryAiProjectResourceName = 'proj-${solutionSuffix}'
-// AI Project resource id: /subscriptions/<subscription-id>/resourceGroups/<resource-group-name>/providers/Microsoft.CognitiveServices/accounts/<ai-services-name>/projects/<project-name>
-
-// NOTE: Required version 'Microsoft.CognitiveServices/accounts@2024-04-01-preview' not available in AVM
-// var aiFoundryAiServicesResourceName = 'aif-${solutionSuffix}'
 var aiFoundryAiServicesAiProjectResourceName = 'proj-${solutionSuffix}'
 var aiFoundryAIservicesEnabled = true
 var aiFoundryAiServicesModelDeployment = {
@@ -589,7 +582,7 @@ module aiFoundryAiServices 'modules/ai-services.bicep' = if (aiFoundryAIservices
       }
     ]
     // WAF aligned configuration for Monitoring
-    diagnosticSettings: enableMonitoring ? [{ workspaceResourceId: logAnalyticsWorkspace.outputs.resourceId }] : null
+    diagnosticSettings: enableMonitoring ? [{ workspaceResourceId: logAnalyticsWorkspace!.outputs.resourceId }] : null
     publicNetworkAccess: enablePrivateNetworking ? 'Disabled' : 'Enabled'
     privateEndpoints: (enablePrivateNetworking)
       ? ([
@@ -654,7 +647,7 @@ var cosmosDbDatabaseName = 'db_conversation_history'
 // var cosmosDbDatabaseMemoryContainerName = 'memory'
 var collectionName = 'conversations'
 //TODO: update to latest version of AVM module
-module cosmosDb 'br/public:avm/res/document-db/database-account:0.15.0' = {
+module cosmosDb 'br/public:avm/res/document-db/database-account:0.15.1' = {
   name: take('avm.res.document-db.database-account.${cosmosDbResourceName}', 64)
   params: {
     // Required parameters
@@ -688,7 +681,7 @@ module cosmosDb 'br/public:avm/res/document-db/database-account:0.15.0' = {
       }
     ]
     // WAF aligned configuration for Monitoring
-    diagnosticSettings: enableMonitoring ? [{ workspaceResourceId: logAnalyticsWorkspace.outputs.resourceId }] : null
+    diagnosticSettings: enableMonitoring ? [{ workspaceResourceId: logAnalyticsWorkspace!.outputs.resourceId }] : null
     // WAF aligned configuration for Private Networking
     networkRestrictions: {
       networkAclBypass: 'None'
@@ -740,7 +733,7 @@ module cosmosDb 'br/public:avm/res/document-db/database-account:0.15.0' = {
 // ========== AVM WAF ========== //
 // ========== Storage account module ========== //
 var storageAccountName = 'st${solutionSuffix}'
-module avmStorageAccount 'br/public:avm/res/storage/storage-account:0.20.0' = {
+module avmStorageAccount 'br/public:avm/res/storage/storage-account:0.26.2' = {
   name: take('avm.res.storage.storage-account.${storageAccountName}', 64)
   params: {
     name: storageAccountName
@@ -822,7 +815,7 @@ module avmStorageAccount 'br/public:avm/res/storage/storage-account:0.20.0' = {
 }
 
 // working version of saving storage account secrets in key vault using AVM module
-module saveStorageAccountSecretsInKeyVault 'br/public:avm/res/key-vault/vault:0.12.1' = {
+module saveStorageAccountSecretsInKeyVault 'br/public:avm/res/key-vault/vault:0.13.3' = {
   name: take('saveStorageAccountSecretsInKeyVault.${keyVaultName}', 64)
   params: {
     name: keyVaultName
@@ -853,7 +846,7 @@ module saveStorageAccountSecretsInKeyVault 'br/public:avm/res/key-vault/vault:0.
 // ========== AVM WAF ========== //
 // ========== SQL module ========== //
 var sqlDbName = 'sqldb-${solutionSuffix}'
-module sqlDBModule 'br/public:avm/res/sql/server:0.20.1' = {
+module sqlDBModule 'br/public:avm/res/sql/server:0.20.2' = {
   name: take('avm.res.sql.server.${sqlDbName}', 64)
   params: {
     // Required parameters
@@ -872,7 +865,7 @@ module sqlDBModule 'br/public:avm/res/sql/server:0.20.1' = {
         availabilityZone: enableRedundancy ? 1 : -1
         collation: 'SQL_Latin1_General_CP1_CI_AS'
         diagnosticSettings: enableMonitoring
-          ? [{ workspaceResourceId: logAnalyticsWorkspace.outputs.resourceId }]
+          ? [{ workspaceResourceId: logAnalyticsWorkspace!.outputs.resourceId }]
           : null
         licenseType: 'LicenseIncluded'
         maxSizeBytes: 34359738368
@@ -942,7 +935,7 @@ module webServerFarm 'br/public:avm/res/web/serverfarm:0.5.0' = {
     reserved: true
     kind: 'linux'
     // WAF aligned configuration for Monitoring
-    diagnosticSettings: enableMonitoring ? [{ workspaceResourceId: logAnalyticsWorkspace.outputs.resourceId }] : null
+    diagnosticSettings: enableMonitoring ? [{ workspaceResourceId: logAnalyticsWorkspace!.outputs.resourceId }] : null
     // WAF aligned configuration for Scalability
     skuName: enableScalability || enableRedundancy ? 'P1v3' : 'B3'
     skuCapacity: enableScalability ? 3 : 1
@@ -1030,7 +1023,7 @@ module webSite 'modules/web-sites.bicep' = {
         applicationInsightResourceId: enableMonitoring ? applicationInsights!.outputs.resourceId : null
       }
     ]
-    diagnosticSettings: enableMonitoring ? [{ workspaceResourceId: logAnalyticsWorkspace.outputs.resourceId }] : null
+    diagnosticSettings: enableMonitoring ? [{ workspaceResourceId: logAnalyticsWorkspace!.outputs.resourceId }] : null
     // WAF aligned configuration for Private Networking
     vnetRouteAllEnabled: enablePrivateNetworking ? true : false
     vnetImagePullEnabled: enablePrivateNetworking ? true : false
@@ -1058,7 +1051,7 @@ module searchService 'br/public:avm/res/search/search-service:0.11.1' = {
     diagnosticSettings: enableMonitoring
       ? [
           {
-            workspaceResourceId: logAnalyticsWorkspace.outputs.resourceId
+            workspaceResourceId: logAnalyticsWorkspace!.outputs.resourceId
           }
         ]
       : null
@@ -1118,7 +1111,7 @@ module searchService 'br/public:avm/res/search/search-service:0.11.1' = {
   }
 }
 
-resource projectAISearchConnection 'Microsoft.CognitiveServices/accounts/projects/connections@2025-04-01-preview' = {
+resource projectAISearchConnection 'Microsoft.CognitiveServices/accounts/projects/connections@2025-06-01' = {
   name: '${aiFoundryAiServicesResourceName}/${aiFoundryAiServicesAiProjectResourceName}/${aiSearchName}'
   properties: {
     category: 'CognitiveSearch'

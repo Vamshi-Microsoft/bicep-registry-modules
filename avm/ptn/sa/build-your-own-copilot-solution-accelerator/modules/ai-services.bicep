@@ -231,12 +231,11 @@ resource cognitiveServiceNew 'Microsoft.CognitiveServices/accounts@2025-06-01' =
   }
 }
 
-
 module cognitive_service_dependencies './dependencies.bicep' = {
   params: {
     projectName: projectName
     projectDescription: projectDescription
-    name:  cognitiveServiceNew.name 
+    name: cognitiveServiceNew.name
     location: location
     deployments: deployments
     diagnosticSettings: diagnosticSettings
@@ -248,7 +247,6 @@ module cognitive_service_dependencies './dependencies.bicep' = {
     tags: tags
   }
 }
-
 
 var cognitiveService = cognitiveServiceNew
 
