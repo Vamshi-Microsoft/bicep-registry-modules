@@ -248,13 +248,11 @@ module cognitive_service_dependencies './dependencies.bicep' = {
   }
 }
 
-var cognitiveService = cognitiveServiceNew
-
 @description('The name of the cognitive services account.')
-output name string = cognitiveService.name
+output name string = cognitiveServiceNew.name
 
 @description('The resource ID of the cognitive services account.')
-output resourceId string = cognitiveService.id
+output resourceId string = cognitiveServiceNew.id
 
 @description('The resource group the cognitive services account was deployed into.')
 output subscriptionId string = subscription().subscriptionId
@@ -263,16 +261,16 @@ output subscriptionId string = subscription().subscriptionId
 output resourceGroupName string = resourceGroup().name
 
 @description('The service endpoint of the cognitive services account.')
-output endpoint string = cognitiveService.properties.endpoint
+output endpoint string = cognitiveServiceNew.properties.endpoint
 
 @description('All endpoints available for the cognitive services account, types depends on the cognitive service kind.')
-output endpoints endpointType = cognitiveService.properties.endpoints
+output endpoints endpointType = cognitiveServiceNew.properties.endpoints
 
 @description('The principal ID of the system assigned identity.')
-output systemAssignedMIPrincipalId string? = cognitiveService.identity.principalId
+output systemAssignedMIPrincipalId string? = cognitiveServiceNew.?identity.?principalId
 
 @description('The location the resource was deployed into.')
-output location string = cognitiveService.location
+output location string = cognitiveServiceNew.location
 
 import { secretsOutputType } from 'br/public:avm/utl/types/avm-common-types:0.5.1'
 @description('A hashtable of references to the secrets exported to the provided Key Vault. The key of each reference is each secret\'s name.')

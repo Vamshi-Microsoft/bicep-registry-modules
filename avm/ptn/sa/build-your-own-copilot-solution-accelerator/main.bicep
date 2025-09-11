@@ -418,10 +418,11 @@ var aiRelatedDnsZoneIndices = [
 // - Deploys all zones if no existing Foundry project is used
 // - Excludes AI-related zones when using with an existing Foundry project
 // ===================================================
+
 @batchSize(5)
-module avmPrivateDnsZones 'br/public:avm/res/network/private-dns-zone:0.8.0' = [
-  for (zone, i) in privateDnsZones: if (enablePrivateNetworking && (!contains(aiRelatedDnsZoneIndices, i))) {
-    name: 'dns-zone-${i}'
+module avmPrivateDnsZones 'br/public:avm/res/network/private-dns-zone:0.7.1' = [
+  for (zone, i) in privateDnsZones: if (enablePrivateNetworking) {
+    name: 'avm.res.network.private-dns-zone.${split(zone, '.')[1]}'
     params: {
       name: zone
       tags: tags
@@ -1077,12 +1078,12 @@ module searchService 'br/public:avm/res/search/search-service:0.11.1' = {
       }
       {
         roleDefinitionIdOrName: '1407120a-92aa-4202-b7e9-c0e197c71c8f' // Search Index Data Reader
-        principalId: aiFoundryAiServices.outputs.aiProjectInfo.aiprojectSystemAssignedMIPrincipalId
+        principalId: aiFoundryAiServices.outputs.aiProjectInfo.systemAssignedMIPrincipalId
         principalType: 'ServicePrincipal'
       }
       {
         roleDefinitionIdOrName: '7ca78c08-252a-4471-8644-bb5ff32d4ba0' // Search Service Contributor
-        principalId: aiFoundryAiServices.outputs.aiProjectInfo.aiprojectSystemAssignedMIPrincipalId
+        principalId: aiFoundryAiServices.outputs.aiProjectInfo.systemAssignedMIPrincipalId
         principalType: 'ServicePrincipal'
       }
     ]

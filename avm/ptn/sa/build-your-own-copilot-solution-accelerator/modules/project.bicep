@@ -38,7 +38,7 @@ output aiProjectInfo aiProjectOutputType = {
   name: aiProject.name
   resourceId: aiProject.id
   apiEndpoint: aiProject!.properties.endpoints['AI Foundry API']
-  aiprojectSystemAssignedMIPrincipalId: aiProject!.identity.principalId
+  systemAssignedMIPrincipalId: aiProject!.identity.principalId
 }
 
 @export()
@@ -54,5 +54,5 @@ type aiProjectOutputType = {
   apiEndpoint: string
 
   @description('Required. System Assigned Managed Identity Principal Id of the AI project.')
-  aiprojectSystemAssignedMIPrincipalId: string
+  systemAssignedMIPrincipalId: string
 }
