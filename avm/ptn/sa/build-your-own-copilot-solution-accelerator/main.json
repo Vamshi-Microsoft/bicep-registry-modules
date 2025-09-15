@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.37.4.10188",
-      "templateHash": "10314357763846295021"
+      "templateHash": "3094448247145058684"
     }
   },
   "parameters": {
@@ -30649,9 +30649,9 @@
         }
       },
       "dependsOn": [
-        "[format('avmPrivateDnsZones[{0}]', variables('dnsZoneIndex').openAI)]",
         "[format('avmPrivateDnsZones[{0}]', variables('dnsZoneIndex').aiServices)]",
         "[format('avmPrivateDnsZones[{0}]', variables('dnsZoneIndex').cognitiveServices)]",
+        "[format('avmPrivateDnsZones[{0}]', variables('dnsZoneIndex').openAI)]",
         "logAnalyticsWorkspace",
         "network",
         "userAssignedIdentity"
@@ -44025,6 +44025,7 @@
           "databases": {
             "value": [
               {
+                "zoneRedundant": "[if(parameters('enableRedundancy'), true(), false())]",
                 "availabilityZone": "[if(parameters('enableRedundancy'), 1, -1)]",
                 "collation": "SQL_Latin1_General_CP1_CI_AS",
                 "diagnosticSettings": "[if(parameters('enableMonitoring'), createArray(createObject('workspaceResourceId', reference('logAnalyticsWorkspace').outputs.resourceId.value)), null())]",

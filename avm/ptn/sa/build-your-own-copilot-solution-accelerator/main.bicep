@@ -863,6 +863,7 @@ module sqlDBModule 'br/public:avm/res/sql/server:0.20.2' = {
     connectionPolicy: 'Redirect'
     databases: [
       {
+        zoneRedundant: enableRedundancy ? true : false
         availabilityZone: enableRedundancy ? 1 : -1
         collation: 'SQL_Latin1_General_CP1_CI_AS'
         diagnosticSettings: enableMonitoring
