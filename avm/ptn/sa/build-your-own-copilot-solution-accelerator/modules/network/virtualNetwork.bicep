@@ -83,7 +83,10 @@ module virtualNetwork 'br/public:avm/res/network/virtual-network:0.7.0' = {
   }
 }
 
+@description('Name of the deployed virtual network.')
 output name string = virtualNetwork.outputs.name
+
+@description('Resource ID of the deployed virtual network.')
 output resourceId string = virtualNetwork.outputs.resourceId
 
 // combined output array that holds subnet details along with NSG information

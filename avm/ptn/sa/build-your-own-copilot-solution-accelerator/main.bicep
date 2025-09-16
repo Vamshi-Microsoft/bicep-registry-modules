@@ -1,16 +1,21 @@
 // ========== main.bicep ========== //
 targetScope = 'resourceGroup'
 
+metadata name = 'Build-your-own-copilot-Solution-Accelerator'
+metadata description = '''This module contains the resources required to deploy the [Build-your-own-copilot-Solution-Accelerator](https://github.com/microsoft/Build-your-own-copilot-Solution-Accelerator) for both Sandbox environments and WAF aligned environments.
+> **Note:** This module is not intended for broad, generic use, as it was designed by the Commercial Solution Areas CTO team, as a Microsoft Solution Accelerator. Feature requests and bug fix requests are welcome if they support the needs of this organization but may not be incorporated if they aim to make this module more generic than what it needs to be for its primary use case. This module will likely be updated to leverage AVM resource modules in the future. This may result in breaking changes in upcoming versions when these features are implemented.
+'''
+
 @minLength(3)
 @maxLength(20)
-@description('Required. A unique prefix for all resources in this deployment. This should be 3-20 characters long:')
+@description('Required. A unique prefix for all resources in this deployment. This should be 3-20 characters long.')
 param solutionName string = 'clientadvisor'
 
-@description('Optional. CosmosDB Location')
+@description('Optional. CosmosDB Location.')
 param cosmosLocation string = 'eastus2'
 
 @minLength(1)
-@description('Optional. GPT model deployment type:')
+@description('Optional. GPT model deployment type.')
 @allowed([
   'Standard'
   'GlobalStandard'
@@ -18,7 +23,7 @@ param cosmosLocation string = 'eastus2'
 param gptModelDeploymentType string = 'GlobalStandard'
 
 @minLength(1)
-@description('Optional. Name of the GPT model to deploy:')
+@description('Optional. Name of the GPT model to deploy.')
 @allowed([
   'gpt-4o-mini'
 ])
@@ -34,20 +39,20 @@ param embeddingModelVersion string = '2'
 param azureOpenaiAPIVersion string = '2025-04-01-preview'
 
 @minValue(10)
-@description('Optional. Capacity of the GPT deployment:')
+@description('Optional. Capacity of the GPT deployment.')
 // You can increase this, but capacity is limited per model/region, so you will get errors if you go over
 // https://learn.microsoft.com/en-us/azure/ai-services/openai/quotas-limits
 param gptModelCapacity int = 200
 
 @minLength(1)
-@description('Optional. Name of the Text Embedding model to deploy:')
+@description('Optional. Name of the Text Embedding model to deploy.')
 @allowed([
   'text-embedding-ada-002'
 ])
 param embeddingModel string = 'text-embedding-ada-002'
 
 @minValue(10)
-@description('Optional. Capacity of the Embedding Model deployment')
+@description('Optional. Capacity of the Embedding Model deployment.')
 param embeddingDeploymentCapacity int = 80
 
 // @description('Fabric Workspace Id if you have one, else leave it empty. ')
@@ -80,8 +85,8 @@ param embeddingDeploymentCapacity int = 80
 param azureAiServiceLocation string
 
 @description('Optional. Set this if you want to deploy to a different region than the resource group. Otherwise, it will use the resource group location by default.')
-param AZURE_LOCATION string = ''
-var solutionLocation = empty(AZURE_LOCATION) ? resourceGroup().location : AZURE_LOCATION
+param azureLocation string = ''
+var location = empty(azureLocation) ? resourceGroup().location : azureLocation
 
 //var solutionSuffix = 'ca${padLeft(take(uniqueId, 12), 12, '0')}'
 
@@ -99,18 +104,18 @@ var solutionSuffix = toLower(trim(replace(
   ''
 )))
 
-@description('Optional. Enable private networking for applicable resources, aligned with the Well Architected Framework recommendations. Defaults to false.')
+@description('Required. Enable private networking for applicable resources, aligned with the Well Architected Framework recommendations. Defaults to false.')
 param enablePrivateNetworking bool
-@description('Optional. Enable monitoring applicable resources, aligned with the Well Architected Framework recommendations. This setting enables Application Insights and Log Analytics and configures all the resources applicable resources to send logs. Defaults to false.')
+@description('Required. Enable monitoring applicable resources, aligned with the Well Architected Framework recommendations. This setting enables Application Insights and Log Analytics and configures all the resources applicable resources to send logs. Defaults to false.')
 param enableMonitoring bool
 
-@description('Optional. Enable scalability for applicable resources, aligned with the Well Architected Framework recommendations. Defaults to false.')
+@description('Required. Enable scalability for applicable resources, aligned with the Well Architected Framework recommendations. Defaults to false.')
 param enableScalability bool
 
 @description('Optional. Enable/Disable usage telemetry for module.')
-param enableTelemetry bool
+param enableTelemetry bool = true
 
-@description('Optional. Enable redundancy for applicable resources, aligned with the Well Architected Framework recommendations. Defaults to false.')
+@description('Required. Enable redundancy for applicable resources, aligned with the Well Architected Framework recommendations. Defaults to false.')
 param enableRedundancy bool
 
 @description('Optional. The Container Registry hostname where the docker images for the frontend are located.')
@@ -122,13 +127,13 @@ param containerImageName string = 'byc-wa-app'
 @description('Optional. The Container Image Tag to deploy on the webapp.')
 param containerImageTag string = 'latest'
 
-@description('Optional. Enable purge protection for the Key Vault')
+@description('Required. Enable purge protection for the Key Vault.')
 param enablePurgeProtection bool
 // Load the abbrevations file required to name the azure resources.
 //var abbrs = loadJsonContent('./abbreviations.json')
 
 //var resourceGroupLocation = resourceGroup().location
-//var solutionLocation = resourceGroupLocation
+//var location = resourceGroupLocation
 // var baseUrl = 'https://raw.githubusercontent.com/microsoft/Build-your-own-copilot-Solution-Accelerator/main/'
 
 var appEnvironment = 'Prod'
@@ -249,7 +254,7 @@ var allTags = union(
 // Paired location calculated based on 'location' parameter. This location will be used by applicable resources if `enableScalability` is set to `true`
 var cosmosDbHaLocation = cosmosDbZoneRedundantHaRegionPairs[resourceGroup().location]
 
-@description('Optional. Created by user name')
+@description('Optional. Created by user name.')
 param createdBy string = empty(deployer().userPrincipalName) ? '' : split(deployer().userPrincipalName, '@')[0]
 
 // ========== Resource Group Tag ========== //
@@ -273,7 +278,7 @@ module logAnalyticsWorkspace 'br/public:avm/res/operational-insights/workspace:0
   params: {
     name: logAnalyticsWorkspaceResourceName
     tags: tags
-    location: solutionLocation
+    location: location
     enableTelemetry: enableTelemetry
     skuName: 'PerGB2018'
     dataRetention: 365
@@ -336,7 +341,7 @@ module applicationInsights 'br/public:avm/res/insights/component:0.6.0' = if (en
   params: {
     name: applicationInsightsResourceName
     tags: tags
-    location: solutionLocation
+    location: location
     enableTelemetry: enableTelemetry
     retentionInDays: 365
     kind: 'web'
@@ -355,7 +360,7 @@ module userAssignedIdentity 'br/public:avm/res/managed-identity/user-assigned-id
   name: take('avm.res.managed-identity.user-assigned-identity.${userAssignedIdentityResourceName}', 64)
   params: {
     name: userAssignedIdentityResourceName
-    location: solutionLocation
+    location: location
     tags: tags
     enableTelemetry: enableTelemetry
   }
@@ -370,7 +375,7 @@ module network 'modules/network.bicep' = if (enablePrivateNetworking) {
     vmAdminUsername: vmAdminUsername ?? 'JumpboxAdminUser'
     vmAdminPassword: vmAdminPassword ?? 'JumpboxAdminP@ssw0rd1234!'
     vmSize: vmSize ?? 'Standard_DS2_v2' // Default VM size
-    location: solutionLocation
+    location: location
     tags: allTags
     enableTelemetry: enableTelemetry
   }
@@ -443,7 +448,7 @@ module keyvault 'br/public:avm/res/key-vault/vault:0.13.3' = {
   name: take('avm.res.key-vault.vault.${keyVaultName}', 64)
   params: {
     name: keyVaultName
-    location: solutionLocation
+    location: location
     tags: tags
     sku: 'standard'
     publicNetworkAccess: enablePrivateNetworking ? 'Disabled' : 'Enabled'
@@ -712,7 +717,7 @@ module cosmosDb 'br/public:avm/res/document-db/database-account:0.15.1' = {
           {
             failoverPriority: 0
             isZoneRedundant: true
-            locationName: solutionLocation
+            locationName: location
           }
           {
             failoverPriority: 1
@@ -722,7 +727,7 @@ module cosmosDb 'br/public:avm/res/document-db/database-account:0.15.1' = {
         ]
       : [
           {
-            locationName: solutionLocation
+            locationName: location
             failoverPriority: 0
             isZoneRedundant: enableRedundancy
           }
@@ -738,7 +743,7 @@ module avmStorageAccount 'br/public:avm/res/storage/storage-account:0.26.2' = {
   name: take('avm.res.storage.storage-account.${storageAccountName}', 64)
   params: {
     name: storageAccountName
-    location: solutionLocation
+    location: location
     managedIdentities: { systemAssigned: true }
     minimumTlsVersion: 'TLS1_2'
     enableTelemetry: enableTelemetry
@@ -827,6 +832,7 @@ module saveStorageAccountSecretsInKeyVault 'br/public:avm/res/key-vault/vault:0.
     enableRbacAuthorization: true
     enableSoftDelete: true
     softDeleteRetentionInDays: 7
+    enableTelemetry: enableTelemetry
     secrets: [
       {
         name: 'ADLS-ACCOUNT-NAME'
@@ -861,6 +867,7 @@ module sqlDBModule 'br/public:avm/res/sql/server:0.20.2' = {
       tenantId: subscription().tenantId
     }
     connectionPolicy: 'Redirect'
+    enableTelemetry: enableTelemetry
     databases: [
       {
         zoneRedundant: enableRedundancy ? true : false
@@ -881,7 +888,7 @@ module sqlDBModule 'br/public:avm/res/sql/server:0.20.2' = {
         }
       }
     ]
-    location: solutionLocation
+    location: location
     managedIdentities: {
       systemAssigned: true
       userAssignedResourceIds: [
@@ -933,7 +940,7 @@ module webServerFarm 'br/public:avm/res/web/serverfarm:0.5.0' = {
     name: webServerFarmResourceName
     tags: tags
     enableTelemetry: enableTelemetry
-    location: solutionLocation
+    location: location
     reserved: true
     kind: 'linux'
     // WAF aligned configuration for Monitoring
@@ -957,7 +964,7 @@ module webSite 'modules/web-sites.bicep' = {
   params: {
     name: webSiteResourceName
     tags: tags
-    location: solutionLocation
+    location: location
     managedIdentities: { userAssignedResourceIds: [userAssignedIdentity!.outputs.resourceId] }
     kind: 'app,linux,container'
     serverFarmResourceId: webServerFarm.?outputs.resourceId
@@ -1035,7 +1042,7 @@ module webSite 'modules/web-sites.bicep' = {
 }
 
 // ========== Search Service ========== //
-var aiSearchName = 'srch-${solutionName}'
+var aiSearchName = 'srch-${solutionSuffix}'
 module searchService 'br/public:avm/res/search/search-service:0.11.1' = {
   name: take('avm.res.search.search-service.${aiSearchName}', 64)
   params: {
@@ -1058,6 +1065,7 @@ module searchService 'br/public:avm/res/search/search-service:0.11.1' = {
         ]
       : null
     disableLocalAuth: false
+    enableTelemetry: enableTelemetry
     hostingMode: 'default'
     managedIdentities: {
       systemAssigned: true
@@ -1257,7 +1265,7 @@ output AZURE_OPENAI_TEMPERATURE string = azureOpenAITemperature
 output AZURE_OPENAI_TOP_P string = azureOpenAITopP
 
 @description('The name of the Azure AI Search connection.')
-output AZURE_SEARCH_CONNECTION_NAME string = 'foundry-search-connection-${solutionSuffix}' //aiFoundryAiServices.outputs.aiSearchFoundryConnectionName
+output AZURE_SEARCH_CONNECTION_NAME string = aiSearchName //aiFoundryAiServices.outputs.aiSearchFoundryConnectionName
 
 @description('The columns in Azure AI Search that contain content.')
 output AZURE_SEARCH_CONTENT_COLUMNS string = azureSearchContentColumns

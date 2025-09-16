@@ -1,4 +1,7 @@
-#  `[Sa/BuildYourOwnCopilotSolutionAccelerator]`
+# Build-your-own-copilot-Solution-Accelerator `[Sa/BuildYourOwnCopilotSolutionAccelerator]`
+
+This module contains the resources required to deploy the [Build-your-own-copilot-Solution-Accelerator](https://github.com/microsoft/Build-your-own-copilot-Solution-Accelerator) for both Sandbox environments and WAF aligned environments.
+> **Note:** This module is not intended for broad, generic use, as it was designed by the Commercial Solution Areas CTO team, as a Microsoft Solution Accelerator. Feature requests and bug fix requests are welcome if they support the needs of this organization but may not be incorporated if they aim to make this module more generic than what it needs to be for its primary use case. This module will likely be updated to leverage AVM resource modules in the future. This may result in breaking changes in upcoming versions when these features are implemented.
 
 
 ## Navigation
@@ -144,6 +147,7 @@ module buildYourOwnCopilotSolutionAccelerator 'br/public:avm/ptn/sa/build-your-o
     enablePurgeProtection: false
     enableRedundancy: false
     enableScalability: false
+    // Non-required parameters
     enableTelemetry: true
   }
 }
@@ -180,6 +184,7 @@ module buildYourOwnCopilotSolutionAccelerator 'br/public:avm/ptn/sa/build-your-o
     "enableScalability": {
       "value": false
     },
+    // Non-required parameters
     "enableTelemetry": {
       "value": true
     }
@@ -204,6 +209,7 @@ param enablePrivateNetworking = false
 param enablePurgeProtection = false
 param enableRedundancy = false
 param enableScalability = false
+// Non-required parameters
 param enableTelemetry = true
 ```
 
@@ -230,6 +236,7 @@ module buildYourOwnCopilotSolutionAccelerator 'br/public:avm/ptn/sa/build-your-o
     enablePurgeProtection: false
     enableRedundancy: false
     enableScalability: true
+    // Non-required parameters
     enableTelemetry: true
   }
 }
@@ -266,6 +273,7 @@ module buildYourOwnCopilotSolutionAccelerator 'br/public:avm/ptn/sa/build-your-o
     "enableScalability": {
       "value": true
     },
+    // Non-required parameters
     "enableTelemetry": {
       "value": true
     }
@@ -290,6 +298,7 @@ param enablePrivateNetworking = true
 param enablePurgeProtection = false
 param enableRedundancy = false
 param enableScalability = true
+// Non-required parameters
 param enableTelemetry = true
 ```
 
@@ -303,31 +312,31 @@ param enableTelemetry = true
 | Parameter | Type | Description |
 | :-- | :-- | :-- |
 | [`azureAiServiceLocation`](#parameter-azureaiservicelocation) | string | Location for AI Foundry deployment. This is the location where the AI Foundry resources will be deployed. |
-| [`solutionName`](#parameter-solutionname) | string | A unique prefix for all resources in this deployment. This should be 3-20 characters long: |
+| [`enableMonitoring`](#parameter-enablemonitoring) | bool | Enable monitoring applicable resources, aligned with the Well Architected Framework recommendations. This setting enables Application Insights and Log Analytics and configures all the resources applicable resources to send logs. Defaults to false. |
+| [`enablePrivateNetworking`](#parameter-enableprivatenetworking) | bool | Enable private networking for applicable resources, aligned with the Well Architected Framework recommendations. Defaults to false. |
+| [`enablePurgeProtection`](#parameter-enablepurgeprotection) | bool | Enable purge protection for the Key Vault. |
+| [`enableRedundancy`](#parameter-enableredundancy) | bool | Enable redundancy for applicable resources, aligned with the Well Architected Framework recommendations. Defaults to false. |
+| [`enableScalability`](#parameter-enablescalability) | bool | Enable scalability for applicable resources, aligned with the Well Architected Framework recommendations. Defaults to false. |
+| [`solutionName`](#parameter-solutionname) | string | A unique prefix for all resources in this deployment. This should be 3-20 characters long. |
 
 **Optional parameters**
 
 | Parameter | Type | Description |
 | :-- | :-- | :-- |
-| [`AZURE_LOCATION`](#parameter-azure_location) | string | Set this if you want to deploy to a different region than the resource group. Otherwise, it will use the resource group location by default. |
+| [`azureLocation`](#parameter-azurelocation) | string | Set this if you want to deploy to a different region than the resource group. Otherwise, it will use the resource group location by default. |
 | [`azureOpenaiAPIVersion`](#parameter-azureopenaiapiversion) | string | API version for the Azure OpenAI service. |
 | [`containerImageName`](#parameter-containerimagename) | string | The Container Image Name to deploy on the webapp. |
 | [`containerImageTag`](#parameter-containerimagetag) | string | The Container Image Tag to deploy on the webapp. |
 | [`containerRegistryHostname`](#parameter-containerregistryhostname) | string | The Container Registry hostname where the docker images for the frontend are located. |
-| [`cosmosLocation`](#parameter-cosmoslocation) | string | CosmosDB Location |
-| [`createdBy`](#parameter-createdby) | string | Created by user name |
-| [`embeddingDeploymentCapacity`](#parameter-embeddingdeploymentcapacity) | int | Capacity of the Embedding Model deployment |
-| [`embeddingModel`](#parameter-embeddingmodel) | string | Name of the Text Embedding model to deploy: |
+| [`cosmosLocation`](#parameter-cosmoslocation) | string | CosmosDB Location. |
+| [`createdBy`](#parameter-createdby) | string | Created by user name. |
+| [`embeddingDeploymentCapacity`](#parameter-embeddingdeploymentcapacity) | int | Capacity of the Embedding Model deployment. |
+| [`embeddingModel`](#parameter-embeddingmodel) | string | Name of the Text Embedding model to deploy. |
 | [`embeddingModelVersion`](#parameter-embeddingmodelversion) | string | Version of the GPT model to deploy. |
-| [`enableMonitoring`](#parameter-enablemonitoring) | bool | Enable monitoring applicable resources, aligned with the Well Architected Framework recommendations. This setting enables Application Insights and Log Analytics and configures all the resources applicable resources to send logs. Defaults to false. |
-| [`enablePrivateNetworking`](#parameter-enableprivatenetworking) | bool | Enable private networking for applicable resources, aligned with the Well Architected Framework recommendations. Defaults to false. |
-| [`enablePurgeProtection`](#parameter-enablepurgeprotection) | bool | Enable purge protection for the Key Vault |
-| [`enableRedundancy`](#parameter-enableredundancy) | bool | Enable redundancy for applicable resources, aligned with the Well Architected Framework recommendations. Defaults to false. |
-| [`enableScalability`](#parameter-enablescalability) | bool | Enable scalability for applicable resources, aligned with the Well Architected Framework recommendations. Defaults to false. |
 | [`enableTelemetry`](#parameter-enabletelemetry) | bool | Enable/Disable usage telemetry for module. |
-| [`gptModelCapacity`](#parameter-gptmodelcapacity) | int | Capacity of the GPT deployment: |
-| [`gptModelDeploymentType`](#parameter-gptmodeldeploymenttype) | string | GPT model deployment type: |
-| [`gptModelName`](#parameter-gptmodelname) | string | Name of the GPT model to deploy: |
+| [`gptModelCapacity`](#parameter-gptmodelcapacity) | int | Capacity of the GPT deployment. |
+| [`gptModelDeploymentType`](#parameter-gptmodeldeploymenttype) | string | GPT model deployment type. |
+| [`gptModelName`](#parameter-gptmodelname) | string | Name of the GPT model to deploy. |
 | [`gptModelVersion`](#parameter-gptmodelversion) | string | Version of the GPT model to deploy. |
 | [`solutionUniqueToken`](#parameter-solutionuniquetoken) | string | A unique token for the solution. This is used to ensure resource names are unique for global resources. Defaults to a 5-character substring of the unique string generated from the subscription ID, resource group name, and solution name. |
 | [`tags`](#parameter-tags) | object | The tags to apply to all deployed Azure resources. |
@@ -356,15 +365,50 @@ Location for AI Foundry deployment. This is the location where the AI Foundry re
   ]
   ```
 
+### Parameter: `enableMonitoring`
+
+Enable monitoring applicable resources, aligned with the Well Architected Framework recommendations. This setting enables Application Insights and Log Analytics and configures all the resources applicable resources to send logs. Defaults to false.
+
+- Required: Yes
+- Type: bool
+
+### Parameter: `enablePrivateNetworking`
+
+Enable private networking for applicable resources, aligned with the Well Architected Framework recommendations. Defaults to false.
+
+- Required: Yes
+- Type: bool
+
+### Parameter: `enablePurgeProtection`
+
+Enable purge protection for the Key Vault.
+
+- Required: Yes
+- Type: bool
+
+### Parameter: `enableRedundancy`
+
+Enable redundancy for applicable resources, aligned with the Well Architected Framework recommendations. Defaults to false.
+
+- Required: Yes
+- Type: bool
+
+### Parameter: `enableScalability`
+
+Enable scalability for applicable resources, aligned with the Well Architected Framework recommendations. Defaults to false.
+
+- Required: Yes
+- Type: bool
+
 ### Parameter: `solutionName`
 
-A unique prefix for all resources in this deployment. This should be 3-20 characters long:
+A unique prefix for all resources in this deployment. This should be 3-20 characters long.
 
 - Required: No
 - Type: string
 - Default: `'clientadvisor'`
 
-### Parameter: `AZURE_LOCATION`
+### Parameter: `azureLocation`
 
 Set this if you want to deploy to a different region than the resource group. Otherwise, it will use the resource group location by default.
 
@@ -406,7 +450,7 @@ The Container Registry hostname where the docker images for the frontend are loc
 
 ### Parameter: `cosmosLocation`
 
-CosmosDB Location
+CosmosDB Location.
 
 - Required: No
 - Type: string
@@ -414,7 +458,7 @@ CosmosDB Location
 
 ### Parameter: `createdBy`
 
-Created by user name
+Created by user name.
 
 - Required: No
 - Type: string
@@ -422,7 +466,7 @@ Created by user name
 
 ### Parameter: `embeddingDeploymentCapacity`
 
-Capacity of the Embedding Model deployment
+Capacity of the Embedding Model deployment.
 
 - Required: No
 - Type: int
@@ -431,7 +475,7 @@ Capacity of the Embedding Model deployment
 
 ### Parameter: `embeddingModel`
 
-Name of the Text Embedding model to deploy:
+Name of the Text Embedding model to deploy.
 
 - Required: No
 - Type: string
@@ -451,51 +495,17 @@ Version of the GPT model to deploy.
 - Type: string
 - Default: `'2'`
 
-### Parameter: `enableMonitoring`
-
-Enable monitoring applicable resources, aligned with the Well Architected Framework recommendations. This setting enables Application Insights and Log Analytics and configures all the resources applicable resources to send logs. Defaults to false.
-
-- Required: Yes
-- Type: bool
-
-### Parameter: `enablePrivateNetworking`
-
-Enable private networking for applicable resources, aligned with the Well Architected Framework recommendations. Defaults to false.
-
-- Required: Yes
-- Type: bool
-
-### Parameter: `enablePurgeProtection`
-
-Enable purge protection for the Key Vault
-
-- Required: Yes
-- Type: bool
-
-### Parameter: `enableRedundancy`
-
-Enable redundancy for applicable resources, aligned with the Well Architected Framework recommendations. Defaults to false.
-
-- Required: Yes
-- Type: bool
-
-### Parameter: `enableScalability`
-
-Enable scalability for applicable resources, aligned with the Well Architected Framework recommendations. Defaults to false.
-
-- Required: Yes
-- Type: bool
-
 ### Parameter: `enableTelemetry`
 
 Enable/Disable usage telemetry for module.
 
-- Required: Yes
+- Required: No
 - Type: bool
+- Default: `True`
 
 ### Parameter: `gptModelCapacity`
 
-Capacity of the GPT deployment:
+Capacity of the GPT deployment.
 
 - Required: No
 - Type: int
@@ -504,7 +514,7 @@ Capacity of the GPT deployment:
 
 ### Parameter: `gptModelDeploymentType`
 
-GPT model deployment type:
+GPT model deployment type.
 
 - Required: No
 - Type: string
@@ -519,7 +529,7 @@ GPT model deployment type:
 
 ### Parameter: `gptModelName`
 
-Name of the GPT model to deploy:
+Name of the GPT model to deploy.
 
 - Required: No
 - Type: string

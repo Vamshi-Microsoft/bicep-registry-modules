@@ -1,20 +1,20 @@
 @minLength(6)
 @maxLength(25)
-@description('Name used for naming all network resources.')
+@description('Required. Name used for naming all network resources.')
 param resourcesName string
 
 @minLength(3)
-@description('Azure region for all services.')
+@description('Required. Azure region for all services.')
 param location string
 
-@description('Resource ID of the Log Analytics Workspace for monitoring and diagnostics.')
+@description('Required. Resource ID of the Log Analytics Workspace for monitoring and diagnostics.')
 param logAnalyticsWorkSpaceResourceId string
 
-@description('Networking address prefix for the VNET.')
+@description('Required. Networking address prefix for the VNET.')
 param addressPrefixes array
 
 import { subnetType } from 'virtualNetwork.bicep'
-@description('Array of subnets to be created within the VNET.')
+@description('Required. Array of subnets to be created within the VNET.')
 param subnets subnetType[]
 
 import { jumpBoxConfigurationType } from 'jumpbox.bicep'
@@ -86,18 +86,35 @@ module jumpbox 'jumpbox.bicep' = if (!empty(jumpboxConfiguration)) {
   }
 }
 
+@description('Name of the deployed virtual network.')
 output vnetName string = virtualNetwork.outputs.name
+@description('Resource ID of the deployed virtual network.')
 output vnetResourceId string = virtualNetwork.outputs.resourceId
 
 import { subnetOutputType } from 'virtualNetwork.bicep'
+@description('Array of subnet objects including names, resource IDs, NSG associations, and related metadata.')
 output subnets subnetOutputType[] = virtualNetwork.outputs.subnets // This one holds critical info for subnets, including NSGs
 
+@description('ID of bastion subnet, if created.')
 output bastionSubnetId string = bastionHost!.outputs.subnetId
+
+@description('Subnet name of bastion host, if created.')
 output bastionSubnetName string = bastionHost!.outputs.subnetName
+
+@description('Host id of bastion host, if created.')
 output bastionHostId string = bastionHost!.outputs.resourceId
+
+@description('Host name of bastion host, if created.')
 output bastionHostName string = bastionHost!.outputs.name
 
+@description('Subnet name of jumpbox, if created.')
 output jumpboxSubnetName string = jumpbox!.outputs.subnetName
+
+@description('Subnet ID of jumpbox, if created.')
 output jumpboxSubnetId string = jumpbox!.outputs.subnetId
+
+@description('Jumpbox name, if created.')
 output jumpboxName string = jumpbox!.outputs.name
+
+@description('Jumpbox resource ID, if created.')
 output jumpboxResourceId string = jumpbox!.outputs.resourceId
