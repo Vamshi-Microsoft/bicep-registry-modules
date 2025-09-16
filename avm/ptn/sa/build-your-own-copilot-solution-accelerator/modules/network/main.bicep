@@ -1,3 +1,6 @@
+metadata name = 'Secure Virtual Network Module'
+metadata description = 'This module creates a secure Virtual Network with optional Azure Bastion Host and Jumpbox VM. It includes NSGs for each subnet and integrates with Log Analytics for monitoring.'
+
 @minLength(6)
 @maxLength(25)
 @description('Required. Name used for naming all network resources.')
@@ -5,7 +8,7 @@ param resourcesName string
 
 @minLength(3)
 @description('Required. Azure region for all services.')
-param location string
+param location string = resourceGroup().location
 
 @description('Required. Resource ID of the Log Analytics Workspace for monitoring and diagnostics.')
 param logAnalyticsWorkSpaceResourceId string

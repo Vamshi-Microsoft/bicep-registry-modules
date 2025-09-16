@@ -269,6 +269,28 @@ resource resourceGroupTags 'Microsoft.Resources/tags@2025-04-01' = {
   }
 }
 
+#disable-next-line no-deployments-resources
+resource avmTelemetry 'Microsoft.Resources/deployments@2024-03-01' = if (enableTelemetry) {
+  name: take(
+    'ptn.sa-buildyourowncopilot.${replace('-..--..-', '.', '-')}.${substring(uniqueString(deployment().name, location), 0, 4)}',
+    64
+  )
+  properties: {
+    mode: 'Incremental'
+    template: {
+      '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
+      contentVersion: '1.0.0.0'
+      resources: []
+      outputs: {
+        telemetry: {
+          type: 'String'
+          value: 'For more information, see https://aka.ms/avm/TelemetryInfo'
+        }
+      }
+    }
+  }
+}
+
 // ========== Log Analytics Workspace ========== //
 // WAF best practices for Log Analytics: https://learn.microsoft.com/en-us/azure/well-architected/service-guides/azure-log-analytics
 // WAF PSRules for Log Analytics: https://azure.github.io/PSRule.Rules.Azure/en/rules/resource/#azure-monitor-logs
@@ -1151,175 +1173,175 @@ resource searchServiceToAiServicesRoleAssignment 'Microsoft.Authorization/roleAs
 
 // ========== Outputs ========== //
 @description('URL of the deployed web application.')
-output WEB_APP_URL string = 'https://${webSite.outputs.name}.azurewebsites.net'
+output webAppUrl string = 'https://${webSite.outputs.name}.azurewebsites.net'
 
 @description('Name of the storage account.')
-output STORAGE_ACCOUNT_NAME string = avmStorageAccount.outputs.name
+output storageAccountName string = avmStorageAccount.outputs.name
 
 @description('Name of the storage container.')
-output STORAGE_CONTAINER_NAME string = 'data'
+output storageContainerName string = 'data'
 
 @description('Name of the Key Vault.')
-output KEY_VAULT_NAME string = keyvault.outputs.name
+output keyVaultName string = keyvault.outputs.name
 
 @description('Name of the Cosmos DB account.')
-output COSMOSDB_ACCOUNT_NAME string = cosmosDb.outputs.name
+output cosmosDbAccountName string = cosmosDb.outputs.name
 
 @description('Name of the resource group.')
-output RESOURCE_GROUP_NAME string = resourceGroup().name
+output resourceGroupName string = resourceGroup().name
 
 @description('The resource ID of the AI Foundry instance.')
-output AI_FOUNDRY_RESOURCE_ID string = aiFoundryAiServices.outputs.resourceId
+output aiFoundryResourceId string = aiFoundryAiServices.outputs.resourceId
 
 @description('Name of the SQL Database server.')
-output SQLDB_SERVER_NAME string = sqlDBModule.outputs.name
+output sqlDbServerName string = sqlDBModule.outputs.name
 
 @description('Name of the SQL Database.')
-output SQLDB_DATABASE string = sqlDbName
+output sqlDbDatabaseName string = sqlDbName
 
 @description('Name of the managed identity used by the web app.')
-output MANAGEDIDENTITY_WEBAPP_NAME string = userAssignedIdentity.outputs.name
+output managedIdentityWebAppName string = userAssignedIdentity.outputs.name
 
 @description('Client ID of the managed identity used by the web app.')
-output MANAGEDIDENTITY_WEBAPP_CLIENTID string = userAssignedIdentity.outputs.clientId
+output managedIdentityWebAppClientId string = userAssignedIdentity.outputs.clientId
 @description('Name of the AI Search service.')
-output AI_SEARCH_SERVICE_NAME string = aiSearchName //aifoundry.outputs.aiSearchService
+output aiSearchServiceName string = aiSearchName //aifoundry.outputs.aiSearchService
 
 @description('Name of the deployed web application.')
-output WEB_APP_NAME string = webSite.outputs.name
+output webAppName string = webSite.outputs.name
 @description('Specifies the current application environment.')
-output APP_ENV string = appEnvironment
+output appEnv string = appEnvironment
 
 @description('The Application Insights instrumentation key.')
-output APPINSIGHTS_INSTRUMENTATIONKEY string = enableMonitoring ? applicationInsights!.outputs.instrumentationKey : ''
+output appInsightsInstrumentationKey string = enableMonitoring ? applicationInsights!.outputs.instrumentationKey : ''
 
 @description('The Application Insights connection string.')
-output APPLICATIONINSIGHTS_CONNECTION_STRING string = enableMonitoring
+output applicationInsightsConnectionString string = enableMonitoring
   ? applicationInsights!.outputs.connectionString
   : ''
 
 @description('The API version used for the Azure AI Agent service.')
-output AZURE_AI_AGENT_API_VERSION string = azureOpenaiAPIVersion
+output azureAiAgentApiVersion string = azureOpenaiAPIVersion
 
 @description('The endpoint URL of the Azure AI Agent project.')
-output AZURE_AI_AGENT_ENDPOINT string = aiFoundryAiServices.outputs.aiProjectInfo.apiEndpoint
+output azureAiAgentEndpoint string = aiFoundryAiServices.outputs.aiProjectInfo.apiEndpoint
 
 @description('The deployment name of the GPT model for the Azure AI Agent.')
-output AZURE_AI_AGENT_MODEL_DEPLOYMENT_NAME string = gptModelName
+output azureAiAgentModelDeploymentName string = gptModelName
 
 @description('The endpoint URL of the Azure AI Search service.')
-output AZURE_AI_SEARCH_ENDPOINT string = 'https://${aiSearchName}.search.windows.net' //aifoundry.outputs.aiSearchTarget
+output azureAiSearchEndpoint string = 'https://${aiSearchName}.search.windows.net' //aifoundry.outputs.aiSearchTarget
 
 @description('The system prompt used for call transcript processing in Azure Functions.')
-output AZURE_CALL_TRANSCRIPT_SYSTEM_PROMPT string = functionAppCallTranscriptSystemPrompt
+output azureCallTranscriptSystemPrompt string = functionAppCallTranscriptSystemPrompt
 
 @description('The name of the Azure Cosmos DB account.')
-output AZURE_COSMOSDB_ACCOUNT string = cosmosDb.outputs.name
+output azureCosmosDbAccount string = cosmosDb.outputs.name
 
 @description('The name of the Azure Cosmos DB container for storing conversations.')
-output AZURE_COSMOSDB_CONVERSATIONS_CONTAINER string = collectionName
+output azureCosmosDbConversationsContainer string = collectionName
 
 @description('The name of the Azure Cosmos DB database.')
-output AZURE_COSMOSDB_DATABASE string = cosmosDbDatabaseName
+output azureCosmosDbDatabase string = cosmosDbDatabaseName
 
 @description('Indicates whether feedback is enabled in Azure Cosmos DB.')
-output AZURE_COSMOSDB_ENABLE_FEEDBACK string = azureCosmosDbEnableFeedback
+output azureCosmosDbEnableFeedback string = azureCosmosDbEnableFeedback
 
 @description('The endpoint URL for the Azure OpenAI Embedding model.')
-output AZURE_OPENAI_EMBEDDING_ENDPOINT string = aiFoundryAiServices.outputs.endpoints['OpenAI Language Model Instance API']
+output azureOpenaiEmbeddingEndpoint string = aiFoundryAiServices.outputs.endpoints['OpenAI Language Model Instance API']
 
 @description('The name of the Azure OpenAI Embedding model.')
-output AZURE_OPENAI_EMBEDDING_NAME string = embeddingModel
+output azureOpenaiEmbeddingName string = embeddingModel
 
 @description('The endpoint URL for the Azure OpenAI service.')
-output AZURE_OPENAI_ENDPOINT string = aiFoundryAiServices.outputs.endpoints['OpenAI Language Model Instance API']
+output azureOpenaiEndpoint string = aiFoundryAiServices.outputs.endpoints['OpenAI Language Model Instance API']
 
 @description('The maximum number of tokens for Azure OpenAI responses.')
-output AZURE_OPENAI_MAX_TOKENS string = azureOpenAIMaxTokens
+output azureOpenaiMaxTokens string = azureOpenAIMaxTokens
 
 @description('The name of the Azure OpenAI GPT model.')
-output AZURE_OPENAI_MODEL string = gptModelName
+output azureOpenaiModel string = gptModelName
 
 @description('The preview API version for Azure OpenAI.')
-output AZURE_OPENAI_PREVIEW_API_VERSION string = azureOpenaiAPIVersion
+output azureOpenaiPreviewApiVersion string = azureOpenaiAPIVersion
 
 @description('The Azure OpenAI resource name.')
-output AZURE_OPENAI_RESOURCE string = aiFoundryAiServices.outputs.name
+output azureOpenaiResource string = aiFoundryAiServices.outputs.name
 
 @description('The stop sequence(s) for Azure OpenAI responses.')
-output AZURE_OPENAI_STOP_SEQUENCE string = azureOpenAIStopSequence
+output azureOpenaiStopSequence string = azureOpenAIStopSequence
 
 @description('Indicates whether streaming is enabled for Azure OpenAI responses.')
-output AZURE_OPENAI_STREAM string = azureOpenAIStream
+output azureOpenaiStream string = azureOpenAIStream
 
 @description('The system prompt for streaming text responses in Azure Functions.')
-output AZURE_OPENAI_STREAM_TEXT_SYSTEM_PROMPT string = functionAppStreamTextSystemPrompt
+output azureOpenaiStreamTextSystemPrompt string = functionAppStreamTextSystemPrompt
 
 @description('The system message for Azure OpenAI requests.')
-output AZURE_OPENAI_SYSTEM_MESSAGE string = azureOpenAISystemMessage
+output azureOpenaiSystemMessage string = azureOpenAISystemMessage
 
 @description('The temperature setting for Azure OpenAI responses.')
-output AZURE_OPENAI_TEMPERATURE string = azureOpenAITemperature
+output azureOpenaiTemperature string = azureOpenAITemperature
 
 @description('The Top-P setting for Azure OpenAI responses.')
-output AZURE_OPENAI_TOP_P string = azureOpenAITopP
+output azureOpenaiTopP string = azureOpenAITopP
 
 @description('The name of the Azure AI Search connection.')
-output AZURE_SEARCH_CONNECTION_NAME string = aiSearchName //aiFoundryAiServices.outputs.aiSearchFoundryConnectionName
+output azureSearchConnectionName string = aiSearchName //aiFoundryAiServices.outputs.aiSearchFoundryConnectionName
 
 @description('The columns in Azure AI Search that contain content.')
-output AZURE_SEARCH_CONTENT_COLUMNS string = azureSearchContentColumns
+output azureSearchContentColumns string = azureSearchContentColumns
 
 @description('Indicates whether in-domain filtering is enabled for Azure AI Search.')
-output AZURE_SEARCH_ENABLE_IN_DOMAIN string = azureSearchEnableInDomain
+output azureSearchEnableInDomain string = azureSearchEnableInDomain
 
 @description('The filename column used in Azure AI Search.')
-output AZURE_SEARCH_FILENAME_COLUMN string = azureSearchFilenameColumn
+output azureSearchFilenameColumn string = azureSearchFilenameColumn
 
 @description('The name of the Azure AI Search index.')
-output AZURE_SEARCH_INDEX string = azureSearchIndex
+output azureSearchIndex string = azureSearchIndex
 
 @description('The permitted groups field used in Azure AI Search.')
-output AZURE_SEARCH_PERMITTED_GROUPS_COLUMN string = azureSearchPermittedGroupsField
+output azureSearchPermittedGroupsColumn string = azureSearchPermittedGroupsField
 
 @description('The query type for Azure AI Search.')
-output AZURE_SEARCH_QUERY_TYPE string = azureSearchQueryType
+output azureSearchQueryType string = azureSearchQueryType
 
 @description('The semantic search configuration name in Azure AI Search.')
-output AZURE_SEARCH_SEMANTIC_SEARCH_CONFIG string = azureSearchSemanticSearchConfig
+output azureSearchSemanticSearchConfig string = azureSearchSemanticSearchConfig
 
 @description('The name of the Azure AI Search service.')
-output AZURE_SEARCH_SERVICE string = aiSearchName //aifoundry.outputs.aiSearchService
+output azureSearchService string = aiSearchName //aifoundry.outputs.aiSearchService
 
 @description('The strictness setting for Azure AI Search semantic ranking.')
-output AZURE_SEARCH_STRICTNESS string = azureSearchStrictness
+output azureSearchStrictness string = azureSearchStrictness
 
 @description('The title column used in Azure AI Search.')
-output AZURE_SEARCH_TITLE_COLUMN string = azureSearchTitleColumn
+output azureSearchTitleColumn string = azureSearchTitleColumn
 
 @description('The number of top results (K) to return from Azure AI Search.')
-output AZURE_SEARCH_TOP_K string = azureSearchTopK
+output azureSearchTopK string = azureSearchTopK
 
 @description('The URL column used in Azure AI Search.')
-output AZURE_SEARCH_URL_COLUMN string = azureSearchUrlColumn
+output azureSearchUrlColumn string = azureSearchUrlColumn
 
 @description('Indicates whether semantic search is used in Azure AI Search.')
-output AZURE_SEARCH_USE_SEMANTIC_SEARCH string = azureSearchUseSemanticSearch
+output azureSearchUseSemanticSearch string = azureSearchUseSemanticSearch
 
 @description('The vector fields used in Azure AI Search.')
-output AZURE_SEARCH_VECTOR_COLUMNS string = azureSearchVectorFields
+output azureSearchVectorColumns string = azureSearchVectorFields
 
 @description('The system prompt for SQL queries in Azure Functions.')
-output AZURE_SQL_SYSTEM_PROMPT string = functionAppSqlPrompt
+output azureSqlSystemPrompt string = functionAppSqlPrompt
 
 @description('The fully qualified domain name (FQDN) of the Azure SQL Server.')
-output SQLDB_SERVER string = sqlServerFqdn
+output sqlDbServer string = sqlServerFqdn
 
 @description('The client ID of the managed identity for the web application.')
-output SQLDB_USER_MID string = userAssignedIdentity.outputs.clientId
+output sqlDbUserManagedIdentityClientId string = userAssignedIdentity.outputs.clientId
 
 @description('Indicates whether the AI Project Client should be used.')
-output USE_AI_PROJECT_CLIENT string = useAIProjectClientFlag
+output useAiProjectClient string = useAIProjectClientFlag
 
 @description('Indicates whether the internal stream should be used.')
-output USE_INTERNAL_STREAM string = useInternalStream
+output useInternalStream string = useInternalStream
