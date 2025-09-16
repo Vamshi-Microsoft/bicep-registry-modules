@@ -8,7 +8,7 @@ metadata description = '''This module contains the resources required to deploy 
 
 @minLength(3)
 @maxLength(20)
-@description('Required. A unique prefix for all resources in this deployment. This should be 3-20 characters long.')
+@description('Optional. A unique prefix for all resources in this deployment. This should be 3-20 characters long.')
 param solutionName string = 'clientadvisor'
 
 @description('Optional. CosmosDB Location.')
@@ -272,7 +272,7 @@ resource resourceGroupTags 'Microsoft.Resources/tags@2025-04-01' = {
 #disable-next-line no-deployments-resources
 resource avmTelemetry 'Microsoft.Resources/deployments@2024-03-01' = if (enableTelemetry) {
   name: take(
-    'ptn.sa-buildyourowncopilot.${replace('-..--..-', '.', '-')}.${substring(uniqueString(deployment().name, location), 0, 4)}',
+    '46d3xbcp.ptn.sa-buildyourowncopilot.${replace('-..--..-', '.', '-')}.${substring(uniqueString(deployment().name, location), 0, 4)}',
     64
   )
   properties: {
@@ -434,11 +434,11 @@ var dnsZoneIndex = {
 }
 
 // List of DNS zone indices that correspond to AI-related services.
-var aiRelatedDnsZoneIndices = [
-  dnsZoneIndex.cognitiveServices
-  dnsZoneIndex.openAI
-  dnsZoneIndex.aiServices
-]
+// var aiRelatedDnsZoneIndices = [
+//   dnsZoneIndex.cognitiveServices
+//   dnsZoneIndex.openAI
+//   dnsZoneIndex.aiServices
+// ]
 
 // ===================================================
 // DEPLOY PRIVATE DNS ZONES
@@ -447,7 +447,7 @@ var aiRelatedDnsZoneIndices = [
 // ===================================================
 
 @batchSize(5)
-module avmPrivateDnsZones 'br/public:avm/res/network/private-dns-zone:0.7.1' = [
+module avmPrivateDnsZones 'br/public:avm/res/network/private-dns-zone:0.8.0' = [
   for (zone, i) in privateDnsZones: if (enablePrivateNetworking) {
     name: 'avm.res.network.private-dns-zone.${split(zone, '.')[1]}'
     params: {
@@ -675,7 +675,7 @@ var cosmosDbDatabaseName = 'db_conversation_history'
 // var cosmosDbDatabaseMemoryContainerName = 'memory'
 var collectionName = 'conversations'
 //TODO: update to latest version of AVM module
-module cosmosDb 'br/public:avm/res/document-db/database-account:0.15.1' = {
+module cosmosDb 'br/public:avm/res/document-db/database-account:0.16.0' = {
   name: take('avm.res.document-db.database-account.${cosmosDbResourceName}', 64)
   params: {
     // Required parameters

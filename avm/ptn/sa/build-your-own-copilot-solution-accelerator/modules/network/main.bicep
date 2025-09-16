@@ -7,7 +7,7 @@ metadata description = 'This module creates a secure Virtual Network with option
 param resourcesName string
 
 @minLength(3)
-@description('Required. Azure region for all services.')
+@description('Optional. Azure region for all services.')
 param location string = resourceGroup().location
 
 @description('Required. Resource ID of the Log Analytics Workspace for monitoring and diagnostics.')
@@ -121,3 +121,5 @@ output jumpboxName string = jumpbox!.outputs.name
 
 @description('Jumpbox resource ID, if created.')
 output jumpboxResourceId string = jumpbox!.outputs.resourceId
+@description('Name of the resource group.')
+output resourceGroupName string = resourceGroup().name

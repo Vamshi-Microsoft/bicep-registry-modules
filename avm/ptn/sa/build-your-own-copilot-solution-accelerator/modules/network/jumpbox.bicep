@@ -67,7 +67,7 @@ module subnetResource 'br/public:avm/res/network/virtual-network/subnet:0.1.2' =
 // https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/compute/virtual-machine
 var vmName = take(name, 15) // Shorten VM name to 15 characters to avoid Azure limits
 
-module vm 'br/public:avm/res/compute/virtual-machine:0.15.0' = {
+module vm 'br/public:avm/res/compute/virtual-machine:0.20.0' = {
   name: take('${vmName}-jumpbox', 64)
   params: {
     name: vmName
@@ -76,7 +76,7 @@ module vm 'br/public:avm/res/compute/virtual-machine:0.15.0' = {
     adminUsername: username
     adminPassword: password
     tags: tags
-    zone: 0
+    availabilityZone: -1
     imageReference: {
       offer: 'WindowsServer'
       publisher: 'MicrosoftWindowsServer'
