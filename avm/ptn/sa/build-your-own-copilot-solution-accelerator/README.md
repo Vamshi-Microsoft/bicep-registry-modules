@@ -124,10 +124,12 @@ The following section provides usage examples for the module, which were used to
 
 - [Sandbox configuration with default parameter values](#example-1-sandbox-configuration-with-default-parameter-values)
 - [Waf-aligned configuration with default parameter values](#example-2-waf-aligned-configuration-with-default-parameter-values)
+- [Sandbox configuration with default parameter values](#example-3-sandbox-configuration-with-default-parameter-values)
+- [Waf-aligned configuration with default parameter values](#example-4-waf-aligned-configuration-with-default-parameter-values)
 
 ### Example 1: _Sandbox configuration with default parameter values_
 
-This instance deploys the Build Your Own Copilot Solution Accelerator
+This instance deploys the Build Your Own Copilot Solution Accelerator using only the required parameters. Optional parameters will take the default values, which are designed for Sandbox environments.
 
 
 <details>
@@ -140,7 +142,7 @@ module buildYourOwnCopilotSolutionAccelerator 'br/public:avm/ptn/sa/build-your-o
   params: {
     // Required parameters
     azureAiServiceLocation: '<azureAiServiceLocation>'
-    enableMonitoring: true
+    enableMonitoring: false
     enablePrivateNetworking: false
     enablePurgeProtection: false
     enableRedundancy: false
@@ -168,7 +170,7 @@ module buildYourOwnCopilotSolutionAccelerator 'br/public:avm/ptn/sa/build-your-o
       "value": "<azureAiServiceLocation>"
     },
     "enableMonitoring": {
-      "value": true
+      "value": false
     },
     "enablePrivateNetworking": {
       "value": false
@@ -202,7 +204,7 @@ using 'br/public:avm/ptn/sa/build-your-own-copilot-solution-accelerator:<version
 
 // Required parameters
 param azureAiServiceLocation = '<azureAiServiceLocation>'
-param enableMonitoring = true
+param enableMonitoring = false
 param enablePrivateNetworking = false
 param enablePurgeProtection = false
 param enableRedundancy = false
@@ -216,7 +218,7 @@ param enableTelemetry = true
 
 ### Example 2: _Waf-aligned configuration with default parameter values_
 
-This instance deploys the Build Your Own Copilot Solution Accelerator
+This instance deploys the Content Processing Solution Accelerator
 
 
 <details>
@@ -231,11 +233,13 @@ module buildYourOwnCopilotSolutionAccelerator 'br/public:avm/ptn/sa/build-your-o
     azureAiServiceLocation: '<azureAiServiceLocation>'
     enableMonitoring: true
     enablePrivateNetworking: true
-    enablePurgeProtection: false
-    enableRedundancy: false
+    enablePurgeProtection: true
+    enableRedundancy: true
     enableScalability: true
     // Non-required parameters
     enableTelemetry: true
+    vmAdminPassword: '<vmAdminPassword>'
+    vmAdminUsername: 'adminuser'
   }
 }
 ```
@@ -263,13 +267,110 @@ module buildYourOwnCopilotSolutionAccelerator 'br/public:avm/ptn/sa/build-your-o
       "value": true
     },
     "enablePurgeProtection": {
+      "value": true
+    },
+    "enableRedundancy": {
+      "value": true
+    },
+    "enableScalability": {
+      "value": true
+    },
+    // Non-required parameters
+    "enableTelemetry": {
+      "value": true
+    },
+    "vmAdminPassword": {
+      "value": "<vmAdminPassword>"
+    },
+    "vmAdminUsername": {
+      "value": "adminuser"
+    }
+  }
+}
+```
+
+</details>
+<p>
+
+<details>
+
+<summary>via Bicep parameters file</summary>
+
+```bicep-params
+using 'br/public:avm/ptn/sa/build-your-own-copilot-solution-accelerator:<version>'
+
+// Required parameters
+param azureAiServiceLocation = '<azureAiServiceLocation>'
+param enableMonitoring = true
+param enablePrivateNetworking = true
+param enablePurgeProtection = true
+param enableRedundancy = true
+param enableScalability = true
+// Non-required parameters
+param enableTelemetry = true
+param vmAdminPassword = '<vmAdminPassword>'
+param vmAdminUsername = 'adminuser'
+```
+
+</details>
+<p>
+
+### Example 3: _Sandbox configuration with default parameter values_
+
+This instance deploys the Content Processing Solution Accelerator using only the required parameters. Optional parameters will take the default values, which are designed for Sandbox environments.
+
+
+<details>
+
+<summary>via Bicep module</summary>
+
+```bicep
+module buildYourOwnCopilotSolutionAccelerator 'br/public:avm/ptn/sa/build-your-own-copilot-solution-accelerator:<version>' = {
+  name: 'buildYourOwnCopilotSolutionAcceleratorDeployment'
+  params: {
+    // Required parameters
+    azureAiServiceLocation: '<azureAiServiceLocation>'
+    enableMonitoring: false
+    enablePrivateNetworking: false
+    enablePurgeProtection: false
+    enableRedundancy: false
+    enableScalability: false
+    // Non-required parameters
+    enableTelemetry: true
+  }
+}
+```
+
+</details>
+<p>
+
+<details>
+
+<summary>via JSON parameters file</summary>
+
+```json
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    // Required parameters
+    "azureAiServiceLocation": {
+      "value": "<azureAiServiceLocation>"
+    },
+    "enableMonitoring": {
+      "value": false
+    },
+    "enablePrivateNetworking": {
+      "value": false
+    },
+    "enablePurgeProtection": {
       "value": false
     },
     "enableRedundancy": {
       "value": false
     },
     "enableScalability": {
-      "value": true
+      "value": false
     },
     // Non-required parameters
     "enableTelemetry": {
@@ -291,13 +392,112 @@ using 'br/public:avm/ptn/sa/build-your-own-copilot-solution-accelerator:<version
 
 // Required parameters
 param azureAiServiceLocation = '<azureAiServiceLocation>'
-param enableMonitoring = true
-param enablePrivateNetworking = true
+param enableMonitoring = false
+param enablePrivateNetworking = false
 param enablePurgeProtection = false
 param enableRedundancy = false
+param enableScalability = false
+// Non-required parameters
+param enableTelemetry = true
+```
+
+</details>
+<p>
+
+### Example 4: _Waf-aligned configuration with default parameter values_
+
+This instance deploys the Content Processing Solution Accelerator
+
+
+<details>
+
+<summary>via Bicep module</summary>
+
+```bicep
+module buildYourOwnCopilotSolutionAccelerator 'br/public:avm/ptn/sa/build-your-own-copilot-solution-accelerator:<version>' = {
+  name: 'buildYourOwnCopilotSolutionAcceleratorDeployment'
+  params: {
+    // Required parameters
+    azureAiServiceLocation: '<azureAiServiceLocation>'
+    enableMonitoring: true
+    enablePrivateNetworking: true
+    enablePurgeProtection: true
+    enableRedundancy: true
+    enableScalability: true
+    // Non-required parameters
+    enableTelemetry: true
+    vmAdminPassword: '<vmAdminPassword>'
+    vmAdminUsername: 'adminuser'
+  }
+}
+```
+
+</details>
+<p>
+
+<details>
+
+<summary>via JSON parameters file</summary>
+
+```json
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    // Required parameters
+    "azureAiServiceLocation": {
+      "value": "<azureAiServiceLocation>"
+    },
+    "enableMonitoring": {
+      "value": true
+    },
+    "enablePrivateNetworking": {
+      "value": true
+    },
+    "enablePurgeProtection": {
+      "value": true
+    },
+    "enableRedundancy": {
+      "value": true
+    },
+    "enableScalability": {
+      "value": true
+    },
+    // Non-required parameters
+    "enableTelemetry": {
+      "value": true
+    },
+    "vmAdminPassword": {
+      "value": "<vmAdminPassword>"
+    },
+    "vmAdminUsername": {
+      "value": "adminuser"
+    }
+  }
+}
+```
+
+</details>
+<p>
+
+<details>
+
+<summary>via Bicep parameters file</summary>
+
+```bicep-params
+using 'br/public:avm/ptn/sa/build-your-own-copilot-solution-accelerator:<version>'
+
+// Required parameters
+param azureAiServiceLocation = '<azureAiServiceLocation>'
+param enableMonitoring = true
+param enablePrivateNetworking = true
+param enablePurgeProtection = true
+param enableRedundancy = true
 param enableScalability = true
 // Non-required parameters
 param enableTelemetry = true
+param vmAdminPassword = '<vmAdminPassword>'
+param vmAdminUsername = 'adminuser'
 ```
 
 </details>
