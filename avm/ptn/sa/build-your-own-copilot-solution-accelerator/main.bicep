@@ -524,7 +524,7 @@ module keyvault 'br/public:avm/res/key-vault/vault:0.13.3' = {
       }
       {
         name: 'AZURE-OPENAI-ENDPOINT'
-        value: aiFoundryAiServices!.outputs.endpoints['OpenAI Language Model Instance API']
+        value: aiFoundryAiServices.outputs.endpoints['OpenAI Language Model Instance API']
       }
       {
         name: 'AZURE-OPENAI-EMBEDDING-MODEL'
@@ -548,7 +548,6 @@ module keyvault 'br/public:avm/res/key-vault/vault:0.13.3' = {
 
 var aiFoundryAiServicesResourceName = 'aif-${solutionSuffix}'
 var aiFoundryAiServicesAiProjectResourceName = 'proj-${solutionSuffix}'
-var aiFoundryAIservicesEnabled = true
 var aiFoundryAiServicesModelDeployment = {
   format: 'OpenAI'
   name: gptModelName
@@ -571,7 +570,7 @@ var aiFoundryAiServicesEmbeddingModel = {
 }
 
 //TODO: update to AVM module when AI Projects and AI Projects RBAC are supported
-module aiFoundryAiServices 'modules/ai-services.bicep' = if (aiFoundryAIservicesEnabled) {
+module aiFoundryAiServices 'modules/ai-services.bicep' = {
   name: take('avm.res.cognitive-services.account.${aiFoundryAiServicesResourceName}', 64)
   params: {
     name: aiFoundryAiServicesResourceName
