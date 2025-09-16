@@ -1,7 +1,7 @@
 targetScope = 'subscription'
 
-metadata name = 'Sandbox configuration with default parameter values'
-metadata description = 'This instance deploys the Build Your Own Copilot Solution Accelerator'
+metadata name = 'Waf-aligned configuration with default parameter values'
+metadata description = 'This instance deploys the Content Processing Solution Accelerator'
 
 // ========== //
 // Parameters //
@@ -9,23 +9,23 @@ metadata description = 'This instance deploys the Build Your Own Copilot Solutio
 
 @description('Optional. The name of the resource group to deploy for testing purposes.')
 @maxLength(90)
-// e.g., for a module 'network/private-endpoint' you could use 'dep-dev-network.privateendpoints-${serviceShort}-rg'
-param resourceGroupName string = 'dep-${namePrefix}-sa.ca-${serviceShort}-rg'
+param resourceGroupName string = 'dep-waf-${namePrefix}-sa.byoc-${serviceShort}-rg'
 
 @description('Optional. The location to deploy resources to.')
 param resourceLocation string = deployment().location
 
-@description('Optional. A short identifier for the kind of deployment. Should be kept short to not run into resource-name length-constraints.')
-// e.g., for a module 'network/private-endpoint' you could use 'npe' as a prefix and then 'waf' as a suffix for the waf-aligned test
-param serviceShort string = 'sbyocsamin'
+@description('Optional. A short identifier for the kind of deployment. Should be kept short to not run into resource-name length-constraints. Remove.')
+param serviceShort string = 'cladv'
 
-@description('Optional. A token to inject into the name of each resource. This value can be automatically injected by the CI.')
 param namePrefix string = '#_namePrefix_#'
+
+@description('Optional. The password to set for the Virtual Machine.')
+@secure()
+param virtualMachineAdminPassword string = newGuid()
 
 // ============ //
 // Dependencies //
 // ============ //
-
 #disable-next-line no-hardcoded-location // A value to avoid ongoing capacity challenges with Server Farm for frontend webapp in AVM Azure testing subscription
 var enforcedLocation = 'australiaeast'
 
@@ -33,7 +33,7 @@ var enforcedLocation = 'australiaeast'
 // =================
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2025-04-01' = {
   name: resourceGroupName
-  location: resourceLocation
+  location: enforcedLocation
 }
 
 // ============== //
@@ -44,15 +44,17 @@ resource resourceGroup 'Microsoft.Resources/resourceGroups@2025-04-01' = {
 module testDeployment '../../../main.bicep' = [
   for iteration in ['init', 'idem']: {
     scope: resourceGroup
-    name: '${uniqueString(deployment().name, enforcedLocation)}-test-${serviceShort}-${iteration}'
+    name: '${uniqueString(deployment().name, resourceLocation)}-test-${serviceShort}-${iteration}'
     params: {
       azureAiServiceLocation: enforcedLocation
-      enablePrivateNetworking: false
+      enablePrivateNetworking: true
       enableMonitoring: true
-      enablePurgeProtection: false
-      enableRedundancy: false
-      enableScalability: false
+      enablePurgeProtection: true
+      enableRedundancy: true
+      enableScalability: true
       enableTelemetry: true
+      vmAdminUsername: 'adminuser'
+      vmAdminPassword: virtualMachineAdminPassword
     }
   }
 ]

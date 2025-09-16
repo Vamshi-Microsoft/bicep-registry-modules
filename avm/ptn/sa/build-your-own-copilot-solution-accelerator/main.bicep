@@ -106,6 +106,7 @@ var solutionSuffix = toLower(trim(replace(
 
 @description('Required. Enable private networking for applicable resources, aligned with the Well Architected Framework recommendations. Defaults to false.')
 param enablePrivateNetworking bool
+
 @description('Required. Enable monitoring applicable resources, aligned with the Well Architected Framework recommendations. This setting enables Application Insights and Log Analytics and configures all the resources applicable resources to send logs. Defaults to false.')
 param enableMonitoring bool
 
@@ -167,12 +168,10 @@ param vmSize string?
 
 @description('Optional. Admin username for the Jumpbox Virtual Machine. Set to custom value if enablePrivateNetworking is true.')
 @secure()
-//param vmAdminUsername string = take(newGuid(), 20)
 param vmAdminUsername string?
 
 @description('Optional. Admin password for the Jumpbox Virtual Machine. Set to custom value if enablePrivateNetworking is true.')
 @secure()
-//param vmAdminPassword string = newGuid()
 param vmAdminPassword string?
 
 var functionAppSqlPrompt = '''Generate a valid T-SQL query to find {query} for tables and columns provided below:
