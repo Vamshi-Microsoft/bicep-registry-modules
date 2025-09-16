@@ -1,5 +1,6 @@
-#  `[Sa/BuildYourOwnCopilotSolutionAcceleratorModulesNetwork]`
+# Secure Virtual Network Module `[Sa/BuildYourOwnCopilotSolutionAcceleratorModulesNetwork]`
 
+This module creates a secure Virtual Network with optional Azure Bastion Host and Jumpbox VM. It includes NSGs for each subnet and integrates with Log Analytics for monitoring.
 
 ## Navigation
 
@@ -7,6 +8,7 @@
 - [Parameters](#Parameters)
 - [Outputs](#Outputs)
 - [Cross-referenced modules](#Cross-referenced-modules)
+- [Data Collection](#Data-Collection)
 
 ## Resource Types
 
@@ -64,8 +66,9 @@ Networking address prefix for the VNET.
 
 Azure region for all services.
 
-- Required: Yes
+- Required: No
 - Type: string
+- Default: `[resourceGroup().location]`
 
 ### Parameter: `logAnalyticsWorkSpaceResourceId`
 
@@ -599,3 +602,7 @@ This section gives you an overview of all local-referenced module files (i.e., o
 | :-- | :-- |
 | `br/public:avm/res/network/network-security-group:0.5.1` | Remote reference |
 | `br/public:avm/res/network/virtual-network:0.7.0` | Remote reference |
+
+## Data Collection
+
+The software may collect information about you and your use of the software and send it to Microsoft. Microsoft may use this information to provide services and improve our products and services. You may turn off the telemetry as described in the [repository](https://aka.ms/avm/telemetry). There are also some features in the software that may enable you and Microsoft to collect data from users of your applications. If you use these features, you must comply with applicable law, including providing appropriate notices to users of your applications together with a copy of Microsoft’s privacy statement. Our privacy statement is located at <https://go.microsoft.com/fwlink/?LinkID=824704>. You can learn more about data collection and use in the help documentation and our privacy statement. Your use of the software operates as your consent to these practices.
