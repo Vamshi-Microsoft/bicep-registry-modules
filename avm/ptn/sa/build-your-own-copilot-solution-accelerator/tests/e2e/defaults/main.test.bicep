@@ -1,14 +1,14 @@
 targetScope = 'subscription'
 
 metadata name = 'Sandbox configuration with default parameter values'
-metadata description = 'This instance deploys the Content Processing Solution Accelerator using only the required parameters. Optional parameters will take the default values, which are designed for Sandbox environments.'
+metadata description = 'This instance deploys the Build Your Own Copilot Solution Accelerator using only the required parameters. Optional parameters will take the default values, which are designed for Sandbox environments.'
 
 // ========== //
 // Parameters //
 // ========== //
 
 @description('Optional. A short identifier for the kind of deployment. Should be kept short to not run into resource-name length-constraints.')
-param serviceShort string = 'scpmin'
+param serviceShort string = 'byoc'
 
 @description('Optional. The name of the resource group to deploy for testing purposes.')
 @maxLength(90)

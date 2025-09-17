@@ -1,7 +1,7 @@
 targetScope = 'subscription'
 
 metadata name = 'Waf-aligned configuration with default parameter values'
-metadata description = 'This instance deploys the Content Processing Solution Accelerator'
+metadata description = 'This instance deploys the Build Your Own Copilot Solution Accelerator'
 
 // ========== //
 // Parameters //
@@ -15,7 +15,7 @@ param resourceGroupName string = 'dep-waf-${namePrefix}-sa.byoc-${serviceShort}-
 param resourceLocation string = deployment().location
 
 @description('Optional. A short identifier for the kind of deployment. Should be kept short to not run into resource-name length-constraints. Remove.')
-param serviceShort string = 'cladv'
+param serviceShort string = 'byoc-waf'
 
 param namePrefix string = '#_namePrefix_#'
 

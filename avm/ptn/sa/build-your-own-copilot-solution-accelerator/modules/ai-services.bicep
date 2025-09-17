@@ -263,6 +263,9 @@ output resourceGroupName string = resourceGroup().name
 @description('The service endpoint of the cognitive services account.')
 output endpoint string = cognitiveServiceNew.properties.endpoint
 
+@description('The service endpoint of the cognitive services account.')
+output openaiEndpoint string = cognitiveServiceNew.properties.endpoints['OpenAI Language Model Instance API']
+
 @description('All endpoints available for the cognitive services account, types depends on the cognitive service kind.')
 output endpoints endpointType = cognitiveServiceNew.properties.endpoints
 
