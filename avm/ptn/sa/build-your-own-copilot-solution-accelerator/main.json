@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.37.4.10188",
-      "templateHash": "11094733733385249450"
+      "templateHash": "13371554743885176103"
     },
     "name": "Build-your-own-copilot-Solution-Accelerator",
     "description": "This module contains the resources required to deploy the [Build-your-own-copilot-Solution-Accelerator](https://github.com/microsoft/Build-your-own-copilot-Solution-Accelerator) for both Sandbox environments and WAF aligned environments.\n> **Note:** This module is not intended for broad, generic use, as it was designed by the Commercial Solution Areas CTO team, as a Microsoft Solution Accelerator. Feature requests and bug fix requests are welcome if they support the needs of this organization but may not be incorporated if they aim to make this module more generic than what it needs to be for its primary use case. This module will likely be updated to leverage AVM resource modules in the future. This may result in breaking changes in upcoming versions when these features are implemented.\n"
@@ -188,6 +188,13 @@
       "defaultValue": "latest",
       "metadata": {
         "description": "Optional. The Container Image Tag to deploy on the webapp."
+      }
+    },
+    "enableSqlVulnerabilityAssessment": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Optional. Enable SQL vulnerability assessment scanning to identify potential security vulnerabilities. Helps satisfy Azure.SQL.VAScan PSRule requirement. Defaults to true."
       }
     },
     "enablePurgeProtection": {
@@ -35879,7 +35886,7 @@
           "blobServices": {
             "value": {
               "corsRules": [],
-              "deleteRetentionPolicyEnabled": false,
+              "deleteRetentionPolicyEnabled": true,
               "deleteRetentionPolicyDays": 7,
               "containerDeleteRetentionPolicyEnabled": true,
               "containerDeleteRetentionPolicyDays": 7,
@@ -41749,8 +41756,8 @@
         }
       },
       "dependsOn": [
-        "[format('avmPrivateDnsZones[{0}]', variables('dnsZoneIndex').storageQueue)]",
         "[format('avmPrivateDnsZones[{0}]', variables('dnsZoneIndex').storageBlob)]",
+        "[format('avmPrivateDnsZones[{0}]', variables('dnsZoneIndex').storageQueue)]",
         "keyvault",
         "network",
         "userAssignedIdentity"
@@ -45271,6 +45278,7 @@
           },
           "privateEndpoints": "[if(parameters('enablePrivateNetworking'), createObject('value', createArray(createObject('privateDnsZoneGroup', createObject('privateDnsZoneGroupConfigs', createArray(createObject('privateDnsZoneResourceId', reference(format('avmPrivateDnsZones[{0}]', variables('dnsZoneIndex').sqlServer)).outputs.resourceId.value))), 'service', 'sqlServer', 'subnetResourceId', reference('network').outputs.subnetPrivateEndpointsResourceId.value, 'tags', parameters('tags')))), createObject('value', createArray()))]",
           "firewallRules": "[if(not(parameters('enablePrivateNetworking')), createObject('value', createArray(createObject('endIpAddress', '255.255.255.255', 'name', 'AllowSpecificRange', 'startIpAddress', '0.0.0.0'), createObject('endIpAddress', '0.0.0.0', 'name', 'AllowAllWindowsAzureIps', 'startIpAddress', '0.0.0.0'))), createObject('value', createArray()))]",
+          "vulnerabilityAssessmentsObj": "[if(parameters('enableSqlVulnerabilityAssessment'), createObject('value', createObject('name', 'default', 'storageAccountResourceId', reference('avmStorageAccount').outputs.resourceId.value, 'createStorageRoleAssignment', true(), 'useStorageAccountAccessKey', false(), 'recurringScans', createObject('isEnabled', true(), 'emailSubscriptionAdmins', true(), 'emails', createArray()))), createObject('value', null()))]",
           "tags": {
             "value": "[parameters('tags')]"
           }
@@ -51932,6 +51940,7 @@
       },
       "dependsOn": [
         "[format('avmPrivateDnsZones[{0}]', variables('dnsZoneIndex').sqlServer)]",
+        "avmStorageAccount",
         "logAnalyticsWorkspace",
         "network",
         "userAssignedIdentity"

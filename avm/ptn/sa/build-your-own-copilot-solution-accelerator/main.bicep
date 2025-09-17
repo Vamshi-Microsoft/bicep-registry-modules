@@ -128,6 +128,9 @@ param containerImageName string = 'byc-wa-app'
 @description('Optional. The Container Image Tag to deploy on the webapp.')
 param containerImageTag string = 'latest'
 
+@description('Optional. Enable SQL vulnerability assessment scanning to identify potential security vulnerabilities. Helps satisfy Azure.SQL.VAScan PSRule requirement. Defaults to true.')
+param enableSqlVulnerabilityAssessment bool = true
+
 @description('Required. Enable purge protection for the Key Vault.')
 param enablePurgeProtection bool
 // Load the abbrevations file required to name the azure resources.
@@ -817,7 +820,7 @@ module avmStorageAccount 'br/public:avm/res/storage/storage-account:0.26.2' = {
       : []
     blobServices: {
       corsRules: []
-      deleteRetentionPolicyEnabled: false
+      deleteRetentionPolicyEnabled: true
       deleteRetentionPolicyDays: 7
       containerDeleteRetentionPolicyEnabled: true
       containerDeleteRetentionPolicyDays: 7
@@ -955,6 +958,19 @@ module sqlDBModule 'br/public:avm/res/sql/server:0.20.2' = {
           }
         ]
       : []
+    vulnerabilityAssessmentsObj: enableSqlVulnerabilityAssessment
+      ? {
+          name: 'default'
+          storageAccountResourceId: avmStorageAccount.outputs.resourceId
+          createStorageRoleAssignment: true
+          useStorageAccountAccessKey: false
+          recurringScans: {
+            isEnabled: true
+            emailSubscriptionAdmins: true
+            emails: []
+          }
+        }
+      : null
     tags: tags
   }
 }
