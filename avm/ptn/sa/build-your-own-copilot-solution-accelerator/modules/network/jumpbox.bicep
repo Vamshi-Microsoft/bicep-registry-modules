@@ -67,6 +67,42 @@ module subnetResource 'br/public:avm/res/network/virtual-network/subnet:0.1.2' =
 // https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/compute/virtual-machine
 var vmName = take(name, 15) // Shorten VM name to 15 characters to avoid Azure limits
 
+module maintenanceConfiguration 'br/public:avm/res/maintenance/maintenance-configuration:0.3.1' = {
+  name: take('${vmName}-jumpbox-maintenance-config', 64)
+  params: {
+    name: 'mc-${vmName}'
+    location: location
+    tags: tags
+    enableTelemetry: enableTelemetry
+    extensionProperties: {
+      InGuestPatchMode: 'User'
+    }
+    maintenanceScope: 'InGuestPatch'
+    maintenanceWindow: {
+      startDateTime: '2024-06-16 00:00'
+      duration: '03:55'
+      timeZone: 'W. Europe Standard Time'
+      recurEvery: '1Day'
+    }
+    visibility: 'Custom'
+    installPatches: {
+      rebootSetting: 'IfRequired'
+      windowsParameters: {
+        classificationsToInclude: [
+          'Critical'
+          'Security'
+        ]
+      }
+      linuxParameters: {
+        classificationsToInclude: [
+          'Critical'
+          'Security'
+        ]
+      }
+    }
+  }
+}
+
 module vm 'br/public:avm/res/compute/virtual-machine:0.20.0' = {
   name: take('${vmName}-jumpbox', 64)
   params: {
@@ -83,6 +119,7 @@ module vm 'br/public:avm/res/compute/virtual-machine:0.20.0' = {
       sku: '2019-datacenter'
       version: 'latest'
     }
+    maintenanceConfigurationResourceId: maintenanceConfiguration.outputs.resourceId
     osType: 'Windows'
     osDisk: {
       name: 'osdisk-${vmName}'
