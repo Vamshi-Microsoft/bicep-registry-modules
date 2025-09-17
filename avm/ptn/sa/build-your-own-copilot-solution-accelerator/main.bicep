@@ -762,13 +762,17 @@ module cosmosDb 'br/public:avm/res/document-db/database-account:0.16.0' = {
 // ========== AVM WAF ========== //
 // ========== Storage account module ========== //
 var storageAccountName = 'st${solutionSuffix}'
-module avmStorageAccount './modules/storage.bicep' = {
+module avmStorageAccount 'br/public:avm/res/storage/storage-account:0.26.2' = {
   name: take('module.storage-account.${storageAccountName}', 64)
   params: {
-    storageAccountName: storageAccountName
+    name: storageAccountName
     location: location
+    managedIdentities: { systemAssigned: true }
+    minimumTlsVersion: 'TLS1_2'
     enableTelemetry: enableTelemetry
     tags: tags
+    accessTier: 'Hot'
+    supportsHttpsTrafficOnly: true
     roleAssignments: [
       {
         principalId: userAssignedIdentity.outputs.principalId
@@ -776,6 +780,13 @@ module avmStorageAccount './modules/storage.bicep' = {
         principalType: 'ServicePrincipal'
       }
     ]
+    // WAF aligned networking
+    networkAcls: {
+      bypass: 'AzureServices'
+      defaultAction: 'Deny'
+    }
+    allowBlobPublicAccess: false
+    publicNetworkAccess: enablePrivateNetworking ? 'Disabled' : 'Enabled'
     // Private endpoints for blob and queue
     privateEndpoints: enablePrivateNetworking
       ? [
@@ -807,6 +818,30 @@ module avmStorageAccount './modules/storage.bicep' = {
           }
         ]
       : []
+    blobServices: {
+      corsRules: []
+      deleteRetentionPolicyEnabled: true
+      deleteRetentionPolicyDays: 7
+      containerDeleteRetentionPolicyEnabled: true
+      containerDeleteRetentionPolicyDays: 7
+      containers: [
+        {
+          name: 'data'
+          publicAccess: 'None'
+          denyEncryptionScopeOverride: false
+          defaultEncryptionScope: '$account-encryption-key'
+        }
+      ]
+    }
+    //   secretsExportConfiguration: {
+    //   accessKey1Name: 'ADLS-ACCOUNT-NAME'
+    //   connectionString1Name: storageAccountName
+    //   accessKey2Name: 'ADLS-ACCOUNT-CONTAINER'
+    //   connectionString2Name: 'data'
+    //   accessKey3Name: 'ADLS-ACCOUNT-KEY'
+    //   connectionString3Name: listKeys(resourceId('Microsoft.Storage/storageAccounts', storageAccountName), '2021-04-01')
+    //   keyVaultResourceId: keyvault.outputs.resourceId
+    // }
   }
   dependsOn: [keyvault]
 }
