@@ -782,7 +782,7 @@ module avmStorageAccount 'br/public:avm/res/storage/storage-account:0.26.2' = {
       bypass: 'AzureServices'
       defaultAction: enablePrivateNetworking ? 'Deny' : 'Allow'
     }
-    allowBlobPublicAccess: enablePrivateNetworking ? true : false
+    allowBlobPublicAccess: enablePrivateNetworking ? false : true
     publicNetworkAccess: enablePrivateNetworking ? 'Disabled' : 'Enabled'
     // Private endpoints for blob and queue
     privateEndpoints: enablePrivateNetworking
@@ -818,6 +818,9 @@ module avmStorageAccount 'br/public:avm/res/storage/storage-account:0.26.2' = {
     blobServices: {
       corsRules: []
       deleteRetentionPolicyEnabled: false
+      deleteRetentionPolicyDays: 7
+      containerDeleteRetentionPolicyEnabled: true
+      containerDeleteRetentionPolicyDays: 7
       containers: [
         {
           name: 'data'
@@ -870,6 +873,11 @@ module saveStorageAccountSecretsInKeyVault 'br/public:avm/res/key-vault/vault:0.
   }
 }
 
+resource maintenanceWindow 'Microsoft.Maintenance/publicMaintenanceConfigurations@2023-04-01' existing = {
+  scope: subscription()
+  name: 'SQL_WestEurope_DB_1'
+}
+
 // ========== AVM WAF ========== //
 // ========== SQL module ========== //
 var sqlDbName = 'sqldb-${solutionSuffix}'
@@ -890,6 +898,7 @@ module sqlDBModule 'br/public:avm/res/sql/server:0.20.2' = {
     enableTelemetry: enableTelemetry
     databases: [
       {
+        maintenanceConfigurationId: maintenanceWindow.id
         zoneRedundant: enableRedundancy ? true : false
         availabilityZone: enableRedundancy ? 1 : -1
         collation: 'SQL_Latin1_General_CP1_CI_AS'
@@ -967,7 +976,7 @@ module webServerFarm 'br/public:avm/res/web/serverfarm:0.5.0' = {
     diagnosticSettings: enableMonitoring ? [{ workspaceResourceId: logAnalyticsWorkspace!.outputs.resourceId }] : null
     // WAF aligned configuration for Scalability
     skuName: enableScalability || enableRedundancy ? 'P1v3' : 'B3'
-    skuCapacity: enableScalability ? 3 : 1
+    skuCapacity: enableScalability ? 3 : 2
     // WAF aligned configuration for Redundancy
     zoneRedundant: enableRedundancy ? true : false
   }
@@ -1117,7 +1126,7 @@ module searchService 'br/public:avm/res/search/search-service:0.11.1' = {
       }
     ]
     partitionCount: 1
-    replicaCount: 1
+    replicaCount: 3
     sku: 'standard'
     semanticSearch: 'free'
     // Use the deployment tags provided to the template

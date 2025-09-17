@@ -6,7 +6,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.37.4.10188",
-      "templateHash": "7790694166459572180"
+      "templateHash": "11094733733385249450"
     },
     "name": "Build-your-own-copilot-Solution-Accelerator",
     "description": "This module contains the resources required to deploy the [Build-your-own-copilot-Solution-Accelerator](https://github.com/microsoft/Build-your-own-copilot-Solution-Accelerator) for both Sandbox environments and WAF aligned environments.\n> **Note:** This module is not intended for broad, generic use, as it was designed by the Commercial Solution Areas CTO team, as a Microsoft Solution Accelerator. Feature requests and bug fix requests are welcome if they support the needs of this organization but may not be incorporated if they aim to make this module more generic than what it needs to be for its primary use case. This module will likely be updated to leverage AVM resource modules in the future. This may result in breaking changes in upcoming versions when these features are implemented.\n"
@@ -380,6 +380,13 @@
           }
         }
       }
+    },
+    "maintenanceWindow": {
+      "existing": true,
+      "type": "Microsoft.Maintenance/publicMaintenanceConfigurations",
+      "apiVersion": "2023-04-01",
+      "subscriptionId": "[subscription().subscriptionId]",
+      "name": "SQL_WestEurope_DB_1"
     },
     "projectAISearchConnection": {
       "type": "Microsoft.CognitiveServices/accounts/projects/connections",
@@ -4775,7 +4782,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.37.4.10188",
-              "templateHash": "14016545668820711826"
+              "templateHash": "7626127693018801952"
             }
           },
           "parameters": {
@@ -5053,7 +5060,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "0.37.4.10188",
-                      "templateHash": "7586720085566474665"
+                      "templateHash": "11431908081300236827"
                     },
                     "name": "Secure Virtual Network Module",
                     "description": "This module creates a secure Virtual Network with optional Azure Bastion Host and Jumpbox VM. It includes NSGs for each subnet and integrates with Log Analytics for monitoring."
@@ -11090,7 +11097,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "0.37.4.10188",
-                              "templateHash": "6585161379347392708"
+                              "templateHash": "8032421215487831437"
                             }
                           },
                           "definitions": {
@@ -12427,7 +12434,7 @@
                                     "value": "[parameters('tags')]"
                                   },
                                   "availabilityZone": {
-                                    "value": -1
+                                    "value": 1
                                   },
                                   "imageReference": {
                                     "value": {
@@ -35866,13 +35873,16 @@
               "defaultAction": "[if(parameters('enablePrivateNetworking'), 'Deny', 'Allow')]"
             }
           },
-          "allowBlobPublicAccess": "[if(parameters('enablePrivateNetworking'), createObject('value', true()), createObject('value', false()))]",
+          "allowBlobPublicAccess": "[if(parameters('enablePrivateNetworking'), createObject('value', false()), createObject('value', true()))]",
           "publicNetworkAccess": "[if(parameters('enablePrivateNetworking'), createObject('value', 'Disabled'), createObject('value', 'Enabled'))]",
           "privateEndpoints": "[if(parameters('enablePrivateNetworking'), createObject('value', createArray(createObject('name', format('pep-blob-{0}', variables('solutionSuffix')), 'privateDnsZoneGroup', createObject('privateDnsZoneGroupConfigs', createArray(createObject('name', 'storage-dns-zone-group-blob', 'privateDnsZoneResourceId', reference(format('avmPrivateDnsZones[{0}]', variables('dnsZoneIndex').storageBlob)).outputs.resourceId.value))), 'subnetResourceId', reference('network').outputs.subnetPrivateEndpointsResourceId.value, 'service', 'blob'), createObject('name', format('pep-queue-{0}', variables('solutionSuffix')), 'privateDnsZoneGroup', createObject('privateDnsZoneGroupConfigs', createArray(createObject('name', 'storage-dns-zone-group-queue', 'privateDnsZoneResourceId', reference(format('avmPrivateDnsZones[{0}]', variables('dnsZoneIndex').storageQueue)).outputs.resourceId.value))), 'subnetResourceId', reference('network').outputs.subnetPrivateEndpointsResourceId.value, 'service', 'queue'))), createObject('value', createArray()))]",
           "blobServices": {
             "value": {
               "corsRules": [],
               "deleteRetentionPolicyEnabled": false,
+              "deleteRetentionPolicyDays": 7,
+              "containerDeleteRetentionPolicyEnabled": true,
+              "containerDeleteRetentionPolicyDays": 7,
               "containers": [
                 {
                   "name": "data",
@@ -45227,6 +45237,7 @@
           "databases": {
             "value": [
               {
+                "maintenanceConfigurationId": "[subscriptionResourceId('Microsoft.Maintenance/publicMaintenanceConfigurations', 'SQL_WestEurope_DB_1')]",
                 "zoneRedundant": "[if(parameters('enableRedundancy'), true(), false())]",
                 "availabilityZone": "[if(parameters('enableRedundancy'), 1, -1)]",
                 "collation": "SQL_Latin1_General_CP1_CI_AS",
@@ -51956,7 +51967,7 @@
           },
           "diagnosticSettings": "[if(parameters('enableMonitoring'), createObject('value', createArray(createObject('workspaceResourceId', reference('logAnalyticsWorkspace').outputs.resourceId.value))), createObject('value', null()))]",
           "skuName": "[if(or(parameters('enableScalability'), parameters('enableRedundancy')), createObject('value', 'P1v3'), createObject('value', 'B3'))]",
-          "skuCapacity": "[if(parameters('enableScalability'), createObject('value', 3), createObject('value', 1))]",
+          "skuCapacity": "[if(parameters('enableScalability'), createObject('value', 3), createObject('value', 2))]",
           "zoneRedundant": "[if(parameters('enableRedundancy'), createObject('value', true()), createObject('value', false()))]"
         },
         "template": {
@@ -54658,7 +54669,7 @@
             "value": 1
           },
           "replicaCount": {
-            "value": 1
+            "value": 3
           },
           "sku": {
             "value": "standard"
