@@ -2,33 +2,33 @@
 // Create Jumpbox NSG and Jumpbox Subnet, then create Jumpbox VM
 // /****************************************************************************************************************************/
 
-@description('Name of the Jumpbox Virtual Machine.')
+@description('Required. Name of the Jumpbox Virtual Machine.')
 param name string
 
-@description('Azure region to deploy resources.')
+@description('Optional. Azure region to deploy resources.')
 param location string = resourceGroup().location
 
-@description('Name of the Virtual Network where the Jumpbox VM will be deployed.')
+@description('Required. Name of the Virtual Network where the Jumpbox VM will be deployed.')
 param vnetName string
 
-@description('Size of the Jumpbox Virtual Machine.')
+@description('Required. Size of the Jumpbox Virtual Machine.')
 param size string
 
 import { subnetType } from 'virtualNetwork.bicep'
 @description('Optional. Subnet configuration for the Jumpbox VM.')
 param subnet subnetType?
 
-@description('Username to access the Jumpbox VM.')
+@description('Required. Username to access the Jumpbox VM.')
 param username string
 
 @secure()
-@description('Password to access the Jumpbox VM.')
+@description('Required. Password to access the Jumpbox VM.')
 param password string
 
 @description('Optional. Tags to apply to the resources.')
 param tags object = {}
 
-@description('Log Analytics Workspace Resource ID for VM diagnostics.')
+@description('Required. Log Analytics Workspace Resource ID for VM diagnostics.')
 param logAnalyticsWorkspaceId string
 
 @description('Optional. Enable/Disable usage telemetry for module.')
@@ -67,6 +67,74 @@ module subnetResource 'br/public:avm/res/network/virtual-network/subnet:0.1.2' =
 // https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/compute/virtual-machine
 var vmName = take(name, 15) // Shorten VM name to 15 characters to avoid Azure limits
 
+module vm 'br/public:avm/res/compute/virtual-machine:0.15.0' = {
+  name: take('${vmName}-jumpbox', 64)
+  params: {
+    name: vmName
+    vmSize: size
+    location: location
+    adminUsername: username
+    adminPassword: password
+    tags: tags
+    zone: 0
+    maintenanceConfigurationResourceId: maintenanceConfiguration.outputs.resourceId
+    imageReference: {
+      offer: 'WindowsServer'
+      publisher: 'MicrosoftWindowsServer'
+      sku: '2019-datacenter'
+      version: 'latest'
+    }
+    osType: 'Windows'
+    osDisk: {
+      name: 'osdisk-${vmName}'
+      managedDisk: {
+        storageAccountType: 'Premium_LRS' // Required for PSRule.Rules.Azure compliance: Azure.VM.Standalone
+      }
+    }
+    // Patch management configuration - required for maintenance configuration compatibility
+    patchMode: 'AutomaticByPlatform'
+    bypassPlatformSafetyChecksOnUserSchedule: true
+    enableAutomaticUpdates: true
+    encryptionAtHost: false // Some Azure subscriptions do not support encryption at host
+    nicConfigurations: [
+      {
+        name: 'nic-${vmName}'
+        ipConfigurations: [
+          {
+            name: 'ipconfig1'
+            subnetResourceId: subnetResource!.outputs.resourceId
+          }
+        ]
+        networkSecurityGroupResourceId: nsg!.outputs.resourceId
+        diagnosticSettings: [
+          {
+            name: 'jumpboxDiagnostics'
+            workspaceResourceId: logAnalyticsWorkspaceId
+            logCategoriesAndGroups: [
+              {
+                categoryGroup: 'allLogs'
+                enabled: true
+              }
+            ]
+            metricCategories: [
+              {
+                category: 'AllMetrics'
+                enabled: true
+              }
+            ]
+          }
+        ]
+      }
+    ]
+    enableTelemetry: enableTelemetry
+  }
+}
+
+// 4. Create Maintenance Configuration for VM
+// Required for PSRule.Rules.Azure compliance: Azure.VM.MaintenanceConfig
+// using AVM Virtual Machine module
+// https://github.com/Azure/bicep-registry-modules/tree/main/avm/res/compute/virtual-machine
+
 module maintenanceConfiguration 'br/public:avm/res/maintenance/maintenance-configuration:0.3.1' = {
   name: take('${vmName}-jumpbox-maintenance-config', 64)
   params: {
@@ -100,65 +168,6 @@ module maintenanceConfiguration 'br/public:avm/res/maintenance/maintenance-confi
         ]
       }
     }
-  }
-}
-
-module vm 'br/public:avm/res/compute/virtual-machine:0.20.0' = {
-  name: take('${vmName}-jumpbox', 64)
-  params: {
-    name: vmName
-    vmSize: size
-    location: location
-    adminUsername: username
-    adminPassword: password
-    tags: tags
-    availabilityZone: 1
-    imageReference: {
-      offer: 'WindowsServer'
-      publisher: 'MicrosoftWindowsServer'
-      sku: '2019-datacenter'
-      version: 'latest'
-    }
-    maintenanceConfigurationResourceId: maintenanceConfiguration.outputs.resourceId
-    osType: 'Windows'
-    osDisk: {
-      name: 'osdisk-${vmName}'
-      managedDisk: {
-        storageAccountType: 'Standard_LRS'
-      }
-    }
-    encryptionAtHost: false // Some Azure subscriptions do not support encryption at host
-    nicConfigurations: [
-      {
-        name: 'nic-${vmName}'
-        ipConfigurations: [
-          {
-            name: 'ipconfig1'
-            subnetResourceId: subnetResource!.outputs.resourceId
-          }
-        ]
-        networkSecurityGroupResourceId: nsg!.outputs.resourceId
-        diagnosticSettings: [
-          {
-            name: 'jumpboxDiagnostics'
-            workspaceResourceId: logAnalyticsWorkspaceId
-            logCategoriesAndGroups: [
-              {
-                categoryGroup: 'allLogs'
-                enabled: true
-              }
-            ]
-            metricCategories: [
-              {
-                category: 'AllMetrics'
-                enabled: true
-              }
-            ]
-          }
-        ]
-      }
-    ]
-    enableTelemetry: enableTelemetry
   }
 }
 

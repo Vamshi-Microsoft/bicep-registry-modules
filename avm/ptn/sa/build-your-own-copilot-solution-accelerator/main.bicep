@@ -819,6 +819,7 @@ module avmStorageAccount 'br/public:avm/res/storage/storage-account:0.26.2' = {
           }
         ]
       : []
+    enableHierarchicalNamespace: true
     blobServices: {
       corsRules: []
       deleteRetentionPolicyEnabled: true
